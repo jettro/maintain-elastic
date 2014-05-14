@@ -1,0 +1,2 @@
+elasticsearchHost: localhost:9300
+clusterName: jc-play
