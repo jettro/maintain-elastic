@@ -1,8 +1,8 @@
 package nl.gridshore.dwes;
 
 import com.codahale.metrics.annotation.Timed;
+import nl.gridshore.dwes.elastic.ESClientManager;
 import org.elasticsearch.action.admin.indices.status.IndicesStatusResponse;
-import org.elasticsearch.client.Client;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -14,19 +14,19 @@ import java.util.List;
 /**
  *
  */
-@Path("/index")
+@Path("/indexes")
 @Produces(MediaType.APPLICATION_JSON)
 public class IndexResource {
-    private Client client;
+    private ESClientManager clientManager;
 
-    public IndexResource(Client client) {
-        this.client = client;
+    public IndexResource(ESClientManager esClientManager) {
+        this.clientManager = esClientManager;
     }
 
     @GET
     @Timed
     public List<Index> showIndexes() {
-        IndicesStatusResponse indices = client.admin().indices().prepareStatus().get();
+        IndicesStatusResponse indices = clientManager.obtainClient().admin().indices().prepareStatus().get();
 
         List<Index> result = new ArrayList<>();
         for (String key : indices.getIndices().keySet()) {

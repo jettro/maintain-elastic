@@ -1,11 +1,12 @@
 package nl.gridshore.dwes;
 
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import nl.gridshore.dwes.elastic.ESClientFactorybean;
+import io.dropwizard.views.ViewBundle;
+import nl.gridshore.dwes.elastic.ESClientManager;
 import nl.gridshore.dwes.elastic.ESHealthCheck;
-import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,17 +27,24 @@ public class DWESApplication extends Application<DWESConfiguration> {
 
     @Override
     public void initialize(Bootstrap<DWESConfiguration> dwesConfigurationBootstrap) {
+        dwesConfigurationBootstrap.addBundle(new ViewBundle());
+        dwesConfigurationBootstrap.addBundle(new AssetsBundle("/assets/", "/assets/"));
     }
 
     @Override
     public void run(DWESConfiguration config, Environment environment) throws Exception {
-        Client client = ESClientFactorybean.obtainClient(config.getElasticsearchHost(), config.getClusterName());
+        ESClientManager esClientManager = new ESClientManager(config.getElasticsearchHost(), config.getClusterName());
+        environment.lifecycle().manage(esClientManager);
 
         logger.info("Running the application");
-        final IndexResource indexResource = new IndexResource(client);
+        final IndexResource indexResource = new IndexResource(esClientManager);
         environment.jersey().register(indexResource);
 
-        final ESHealthCheck esHealthCheck = new ESHealthCheck(client);
+        final HomeResource homeResource = new HomeResource(config.getClusterName());
+        environment.jersey().register(homeResource);
+
+        final ESHealthCheck esHealthCheck = new ESHealthCheck(esClientManager);
         environment.healthChecks().register("elasticsearch", esHealthCheck);
+
     }
 }
