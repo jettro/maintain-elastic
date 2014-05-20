@@ -3,16 +3,14 @@
 <head>
     <title>DWAS</title>
 </head>
-<body ng-controller="IndexCtrl">
+<body>
 <p>Underneath a list of indexes in the cluster <strong>${clusterName?html}</strong></p>
 
-<div ng-init="initIndexes()">
-    <ul>
-        <li ng-repeat="index in indexes">{{index.name}}</li>
-    </ul>
+<div ng-view>
 </div>
 
 <script src="/assets/js/angular-1.2.16.min.js"></script>
+<script src="/assets/js/angular-route-1.2.16.min.js"></script>
 <script src="/assets/js/app.js"></script>
 </body>
 </html>
