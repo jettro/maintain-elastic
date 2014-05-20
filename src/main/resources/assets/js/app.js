@@ -1,7 +1,6 @@
 'use strict';
 
 var myApp = angular.module('myApp', ['ngRoute']);
-//var myApp = angular.module('myApp', []);
 
 myApp.controller('IndexCtrl', function ($scope, $http) {
     $scope.indexes = [];
@@ -13,7 +12,12 @@ myApp.controller('IndexCtrl', function ($scope, $http) {
     };
 });
 
+myApp.controller('InfoCtrl', function ($scope, $http) {
+
+});
+
 myApp.config(function($routeProvider) {
     $routeProvider.when('/dashboard', {templateUrl: '/assets/partials/dashboard.html', controller: 'IndexCtrl'});
+    $routeProvider.when('/info', {templateUrl: '/assets/partials/info.html', controller: 'InfoCtrl'});
     $routeProvider.otherwise({redirectTo: '/dashboard'});
 });
