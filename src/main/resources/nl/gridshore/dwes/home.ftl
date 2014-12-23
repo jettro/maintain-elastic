@@ -2,30 +2,32 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="myApp">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>DWAS</title>
-    <link href="/assets/style/main.css" rel="stylesheet">
+    <link href="/assets/style/app.min.css" rel="stylesheet">
 
 </head>
 <body>
-<header>
-    <nav>
-        <ul>
-            <li><a href="#/dashboard">Dashboard</a></li>
-            <li><a href="#/info">Info</a></li>
-        </ul>
-    </nav>
-</header>
-<p>We are connected to the cluster <strong>${clusterName?html}</strong></p>
+<navbar heading="Elastic tools">
+    <navbaritem link="dashboard" title="Dashboard"></navbaritem>
+    <navbaritem link="indexes" title="Index"></navbaritem>
+    <navbaritem link="about" title="About"></navbaritem>
+</navbar>
 
-<div ng-view>
+<div class="container-fluid" ng-view>
 </div>
 
-<footer>
-    <p>Copyright 2014 Jettro Coenradie</p>
-</footer>
-<script src="/assets/js/angular-1.2.16.min.js"></script>
-<script src="/assets/js/angular-route-1.2.16.min.js"></script>
-<script src="/assets/js/app.js"></script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <footer>
+                <p>Copyright 2014 Jettro Coenradie</p>
+            </footer>
+        </div>
+    </div>
+</div>
+<script src="/assets/js/dwes.js"></script>
 </body>
 </html>

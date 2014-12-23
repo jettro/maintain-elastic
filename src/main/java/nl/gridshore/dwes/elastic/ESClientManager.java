@@ -10,9 +10,11 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Elasticsearch client factory bean that returns a client instance. You are responsible for closing the client when
@@ -23,32 +25,15 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class ESClientManager implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ESClientManager.class);
-    private static final int DEFAULT_ELASTICSEARCH_PORT = 9300;
 
-    private final String host;
+    private final List<String> hosts;
     private final String clusterName;
+
     private Client client;
 
     public ESClientManager(String host, String clusterName) {
-        this.host = host;
+        this.hosts = Arrays.asList(host.split(","));
         this.clusterName = clusterName;
-    }
-
-    private static TransportAddress[] getTransportAddresses(String unicastHosts) {
-        List<TransportAddress> transportAddresses = newArrayList();
-
-        for (String unicastHost : unicastHosts.split(",")) {
-            int port = DEFAULT_ELASTICSEARCH_PORT;
-            String serverName = unicastHost;
-            if (unicastHost.contains(":")) {
-                String[] splitted = unicastHost.split(":");
-                serverName = splitted[0];
-                port = Integer.parseInt(splitted[1].trim());
-            }
-            transportAddresses.add(new InetSocketTransportAddress(serverName.trim(), port));
-        }
-
-        return transportAddresses.toArray(new TransportAddress[transportAddresses.size()]);
     }
 
     public Client obtainClient() {
@@ -58,14 +43,16 @@ public class ESClientManager implements Managed {
     @Override
     public void start() throws Exception {
         Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build();
-
         logger.debug("Settings used for connection to elasticsearch : {}", settings.toDelimitedString('#'));
 
-        TransportAddress[] addresses = getTransportAddresses(host);
+        List<TransportAddress> addresses = hosts.stream()
+                .map(ParseServerStringFunction::parse)
+                .collect(toList());
+        logger.debug("Hosts used for transport client : {}", addresses);
 
-        logger.debug("Hosts used for transport client : {}", (Object) addresses);
+        this.client = new TransportClient(settings)
+                .addTransportAddresses(addresses.toArray(new TransportAddress[addresses.size()]));
 
-        this.client = new TransportClient(settings).addTransportAddresses(addresses);
     }
 
     @Override

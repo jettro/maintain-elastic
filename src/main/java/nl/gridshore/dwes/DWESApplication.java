@@ -43,6 +43,9 @@ public class DWESApplication extends Application<DWESConfiguration> {
         final HomeResource homeResource = new HomeResource(config.getClusterName());
         environment.jersey().register(homeResource);
 
+        final ClusterResource clusterResource = new ClusterResource(esClientManager);
+        environment.jersey().register(clusterResource);
+
         final ESHealthCheck esHealthCheck = new ESHealthCheck(esClientManager);
         environment.healthChecks().register("elasticsearch", esHealthCheck);
 

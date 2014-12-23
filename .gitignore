@@ -6,3 +6,6 @@ release.properties
 
 *.iml
 .idea
+node_modules
+bower_components
+.sass-cache

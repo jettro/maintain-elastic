@@ -1,0 +1,30 @@
+<p>Underneath a list of indexes:</p>
+<div ng-init="initIndexes()">
+    <table class="table table-bordered table-condensed table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>State</th>
+                <th>Status</th>
+                <th>Shards</th>
+                <th>Replicas</th>
+                <th>Docs</th>
+                <th>Size</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="index in indexes">
+                <td>{{index.name}}</td>
+                <td>{{index.state}}</td>
+                <td>{{index.status}}</td>
+                <td>{{index.numberOfShards}}</td>
+                <td>{{index.numberOfReplicas}}</td>
+                <td>{{index.docCount}}</td>
+                <td>{{index.size}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <ul>
+        <li >{{index.name}}</li>
+    </ul>
+</div>

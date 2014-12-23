@@ -9,7 +9,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 public class DWESConfiguration extends Configuration {
     @NotEmpty
-    private String elasticsearchHost = "localhost:9200";
+    private String elasticsearchHost = "localhost:9300";
 
     @NotEmpty
     private String clusterName = "elasticsearch";

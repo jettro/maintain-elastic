@@ -11,11 +11,11 @@
     <name>Dropwizard Elasticsearch Sample</name>
 
     <properties>
-        <dropwizard.version>0.7.0</dropwizard.version>
-        <elasticsearch.version>1.1.1</elasticsearch.version>
+        <dropwizard.version>0.7.1</dropwizard.version>
+        <elasticsearch.version>1.4.2</elasticsearch.version>
 
         <maven.compiler.plugin>3.1</maven.compiler.plugin>
-        <java.version>1.7</java.version>
+        <java.version>1.8</java.version>
     </properties>
 
     <dependencies>
@@ -54,8 +54,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin}</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
