@@ -10,6 +10,7 @@ import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.client.ClusterAdminClient;
 import org.elasticsearch.client.IndicesAdminClient;
+import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.hppc.cursors.ObjectObjectCursor;
@@ -42,7 +43,6 @@ public class IndexResource {
         ClusterHealthResponse clusterHealth = clusterClient().prepareHealth().execute().actionGet();
         IndicesStatsResponse clusterStats = indicesClient().prepareStats().execute().actionGet();
 
-
         List<ElasticIndex> indices = new ArrayList<>();
         ImmutableOpenMap<String, IndexMetaData> stateIndices = clusterState.getState().metaData().indices();
         Map<String, ClusterIndexHealth> healthIndices = clusterHealth.getIndices();
@@ -55,6 +55,10 @@ public class IndexResource {
                 elasticIndex.state(item.value.getState().name());
                 elasticIndex.numberOfShards(item.value.numberOfShards());
                 elasticIndex.numberOfReplicas(item.value.numberOfReplicas());
+                ImmutableOpenMap<String, AliasMetaData> aliases = item.value.aliases();
+                if (aliases.size() > 0) {
+                    aliases.forEach(alias -> elasticIndex.aliases(alias.key));
+                }
 
                 ClusterIndexHealth indexHealth = healthIndices.get(item.key);
                 if (indexHealth != null) {

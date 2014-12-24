@@ -1,9 +1,11 @@
 <p>Underneath a list of indexes:</p>
 <div ng-init="initIndexes()">
-    <table class="table table-bordered table-condensed table-striped">
+    <table class="table table-bordered table-condensed table-hover">
         <thead>
             <tr>
+                <th>Actions</th>
                 <th>Name</th>
+                <th>Alias</th>
                 <th>State</th>
                 <th>Status</th>
                 <th>Shards</th>
@@ -14,17 +16,30 @@
         </thead>
         <tbody>
             <tr ng-repeat="index in indexes">
+                <td>
+                    <button type="button" class="btn btn-default btn-xs" title="Copy">
+                        <span class="fa fa-files-o"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" title="Edit">
+                        <span class="fa fa-edit"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" title="Remove">
+                        <span class="fa fa-trash-o"></span>
+                    </button>
+                </td>
                 <td>{{index.name}}</td>
+                <td>{{index.aliases}}</td>
                 <td>{{index.state}}</td>
                 <td>{{index.status}}</td>
                 <td>{{index.numberOfShards}}</td>
-                <td>{{index.numberOfReplicas}}</td>
+                <td><button type="button" class="btn btn-default btn-xs" title="Edit #Replicas">
+                        <span class="fa fa-pencil"></span>
+                    </button>
+                    {{index.numberOfReplicas}}
+                </td>
                 <td>{{index.docCount}}</td>
                 <td>{{index.size}}</td>
             </tr>
         </tbody>
     </table>
-    <ul>
-        <li >{{index.name}}</li>
-    </ul>
 </div>

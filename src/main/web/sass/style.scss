@@ -1,3 +1,4 @@
 @import '../../../../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap.scss';
-
+$fa-font-path: "/assets/fonts";
+@import '../../../../bower_components/fontawesome/scss/font-awesome.scss';
 @import 'main.scss';

@@ -1,5 +1,7 @@
 package nl.gridshore.dwes.elastic;
 
+import java.util.Arrays;
+
 /**
  * Created by jettrocoenradie on 23/12/14.
  */
@@ -11,6 +13,7 @@ public class ElasticIndex {
     private String status;
     private long docCount;
     private String size;
+    private String aliases;
 
     public ElasticIndex(String name) {
         this.name = name;
@@ -46,6 +49,11 @@ public class ElasticIndex {
         return this;
     }
 
+    public ElasticIndex aliases(String aliases) {
+        this.aliases = aliases;
+        return this;
+    }
+
     public String getName() {
         return name;
     }
@@ -72,5 +80,9 @@ public class ElasticIndex {
 
     public String getSize() {
         return size;
+    }
+
+    public String getAliases() {
+        return aliases;
     }
 }
