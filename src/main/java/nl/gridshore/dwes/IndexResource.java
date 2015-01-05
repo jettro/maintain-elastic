@@ -5,7 +5,9 @@ import nl.gridshore.dwes.elastic.ESClientManager;
 import nl.gridshore.dwes.elastic.ElasticIndex;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.health.ClusterIndexHealth;
+import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
+import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.client.ClusterAdminClient;
@@ -15,11 +17,11 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.hppc.cursors.ObjectObjectCursor;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.validation.Valid;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -27,8 +29,9 @@ import java.util.function.Consumer;
 /**
  *
  */
-@Path("/indexes")
+@Path("/index")
 @Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class IndexResource {
     private ESClientManager clientManager;
 
@@ -75,6 +78,19 @@ public class IndexResource {
         });
 
         return indices;
+    }
+
+    @POST
+    @Path("/{index}")
+    public String changeIndex(@PathParam("index") String index, ChangeIndexRequest request) {
+        System.out.println(index);
+        System.out.println(request.toString());
+        // for now we only support changing number of replicas
+        Map<String,Object> settings = new HashMap<>();
+        settings.put("number_of_replicas",request.getNumReplicas());
+        UpdateSettingsResponse updateSettingsResponse = indicesClient().prepareUpdateSettings(index)
+                .setSettings(settings).execute().actionGet();
+        return "OK";
     }
 
     private IndicesAdminClient indicesClient() {

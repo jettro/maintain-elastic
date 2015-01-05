@@ -20,7 +20,7 @@
                     <button type="button" class="btn btn-default btn-xs" title="Copy">
                         <span class="fa fa-files-o"></span>
                     </button>
-                    <button type="button" class="btn btn-default btn-xs" title="Edit">
+                    <button type="button" class="btn btn-default btn-xs" title="Edit" ng-click="editIndexDialog(index)">
                         <span class="fa fa-edit"></span>
                     </button>
                     <button type="button" class="btn btn-default btn-xs" title="Remove">
@@ -32,11 +32,7 @@
                 <td>{{index.state}}</td>
                 <td>{{index.status}}</td>
                 <td>{{index.numberOfShards}}</td>
-                <td><button type="button" class="btn btn-default btn-xs" title="Edit #Replicas">
-                        <span class="fa fa-pencil"></span>
-                    </button>
-                    {{index.numberOfReplicas}}
-                </td>
+                <td>{{index.numberOfReplicas}}</td>
                 <td>{{index.docCount}}</td>
                 <td>{{index.size}}</td>
             </tr>

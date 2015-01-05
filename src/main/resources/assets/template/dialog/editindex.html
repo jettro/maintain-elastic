@@ -1,0 +1,15 @@
+<div class="modal-header">
+    <h1>Edit index properties</h1>
+    <h2>{{index.name}}</h2>
+</div>
+<div class="modal-body">
+    <form role="form">
+        <div class="form-group">
+            <label>Number of replicas</label>
+            <input type="number" class="form-control" ng-model="changedIndex.numReplicas" autofocus="true"/>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button ng-click="close()" class="btn btn-primary">Save</button>
+</div>
