@@ -31,5 +31,47 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
+    $scope.deleteIndex = function(index) {
+        indexService.deleteIndex(index.name, function(data) {
+            var i = $scope.indexes.indexOf(index);
+            $scope.indexes.splice(i,1);
+        })
+    };
+
+    $scope.closeIndex = function(index) {
+        indexService.closeIndex(index.name, function(data) {
+           index.state = "CLOSED";
+        });
+    };
+
+    $scope.openIndex = function(index) {
+        indexService.openIndex(index.name, function(data) {
+            $scope.initIndexes();
+        });
+
+    };
+
+    $scope.optimizeIndexDialog = function(index) {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/optimizeindex.html',
+            controller: 'OptimizeIndexDialogCtrl',
+            resolve: {index: function () {
+                return angular.copy(index)
+            } }};
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                var optimizedIndex = {"name":index.name,"maxSegments":result.maxSegments};
+                indexService.optimizeIndex(index.name,result.maxSegments,function(optimizeIndexResult){
+                    $scope.initIndexes();
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
+    };
 }
 IndexCtrl.$inject = ['$scope','$modal','indexService'];

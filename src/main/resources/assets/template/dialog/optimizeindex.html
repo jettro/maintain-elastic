@@ -1,0 +1,15 @@
+<div class="modal-header">
+    <h1>Optimize index</h1>
+    <h2>{{index.name}}</h2>
+</div>
+<div class="modal-body">
+    <form role="form">
+        <div class="form-group">
+            <label>Maximum number of segments</label>
+            <input type="number" class="form-control" ng-model="optimizedIndex.maxSegments" autofocus="true"/>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button ng-click="close()" class="btn btn-primary">Optimize</button>
+</div>

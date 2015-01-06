@@ -1,12 +1,9 @@
 package nl.gridshore.dwes;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.validation.constraints.NotNull;
 
 /**
- * Created by jettrocoenradie on 05/01/15.
+ * Value object used to send a request for changing the index.
  */
 public class ChangeIndexRequest {
     private int numReplicas;

@@ -1,7 +1,7 @@
 package nl.gridshore.dwes;
 
 /**
- * Created by jettrocoenradie on 23/12/14.
+ * Value object to send the status of the cluster
  */
 public class ClusterStatus {
     private String status;

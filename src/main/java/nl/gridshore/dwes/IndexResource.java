@@ -71,6 +71,7 @@ public class IndexResource {
                 if (indexStats != null) {
                     elasticIndex.docCount(indexStats.getPrimaries().docs.getCount());
                     elasticIndex.size(indexStats.getPrimaries().store.size().toString());
+                    elasticIndex.numberOfSegments(indexStats.getPrimaries().getSegments().getCount());
                 }
 
                 indices.add(elasticIndex);
@@ -83,13 +84,42 @@ public class IndexResource {
     @POST
     @Path("/{index}")
     public String changeIndex(@PathParam("index") String index, ChangeIndexRequest request) {
-        System.out.println(index);
-        System.out.println(request.toString());
-        // for now we only support changing number of replicas
         Map<String,Object> settings = new HashMap<>();
         settings.put("number_of_replicas",request.getNumReplicas());
         UpdateSettingsResponse updateSettingsResponse = indicesClient().prepareUpdateSettings(index)
                 .setSettings(settings).execute().actionGet();
+        return "OK";
+    }
+
+    @DELETE
+    @Path("/{index}")
+    public String deleteIndex(@PathParam("index") String index) {
+        indicesClient().prepareDelete(index).execute().actionGet();
+        return "OK";
+    }
+
+    @POST
+    @Path("/{index}/close")
+    public String closeIndex(@PathParam("index") String index) {
+        indicesClient().prepareClose(index).execute().actionGet();
+        return "OK";
+    }
+
+    @POST
+    @Path("/{index}/open")
+    public String openIndex(@PathParam("index") String index) {
+        indicesClient().prepareOpen(index).execute().actionGet();
+        return "OK";
+    }
+
+    @POST
+    @Path("/{index}/optimize")
+    public String optimizeIndex(@PathParam("index") String index, @QueryParam("max") int maxSegments) {
+        int actualMaxSegments = 0;
+        if (maxSegments != 0) {
+            actualMaxSegments = maxSegments;
+        }
+        indicesClient().prepareOptimize(index).setMaxNumSegments(actualMaxSegments).execute().actionGet();
         return "OK";
     }
 

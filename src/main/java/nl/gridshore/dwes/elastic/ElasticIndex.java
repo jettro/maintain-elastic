@@ -3,13 +3,14 @@ package nl.gridshore.dwes.elastic;
 import java.util.Arrays;
 
 /**
- * Created by jettrocoenradie on 23/12/14.
+ * Value object to return information about the found indices.
  */
 public class ElasticIndex {
     private String name;
     private String state;
     private int numberOfShards;
     private int numberOfReplicas;
+    private long numberOfSegments;
     private String status;
     private long docCount;
     private String size;
@@ -31,6 +32,11 @@ public class ElasticIndex {
 
     public ElasticIndex numberOfReplicas(int numberOfReplicas) {
         this.numberOfReplicas = numberOfReplicas;
+        return this;
+    }
+
+    public ElasticIndex numberOfSegments(long numberOfSegments) {
+        this.numberOfSegments = numberOfSegments;
         return this;
     }
 
@@ -84,5 +90,9 @@ public class ElasticIndex {
 
     public String getAliases() {
         return aliases;
+    }
+
+    public long getNumberOfSegments() {
+        return numberOfSegments;
     }
 }

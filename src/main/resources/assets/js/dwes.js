@@ -1,4 +1,4 @@
-/*! dwes - v1.0.0 - 2015-01-05
+/*! dwes - v1.0.0 - 2015-01-06
 * https://github.com/jettro/dropwizard-elastic
 * Copyright (c) 2015 ; Licensed  */
 (function(window, document, undefined) {'use strict';
@@ -27289,6 +27289,48 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
+    $scope.deleteIndex = function(index) {
+        indexService.deleteIndex(index.name, function(data) {
+            var i = $scope.indexes.indexOf(index);
+            $scope.indexes.splice(i,1);
+        })
+    };
+
+    $scope.closeIndex = function(index) {
+        indexService.closeIndex(index.name, function(data) {
+           index.state = "CLOSED";
+        });
+    };
+
+    $scope.openIndex = function(index) {
+        indexService.openIndex(index.name, function(data) {
+            $scope.initIndexes();
+        });
+
+    };
+
+    $scope.optimizeIndexDialog = function(index) {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/optimizeindex.html',
+            controller: 'OptimizeIndexDialogCtrl',
+            resolve: {index: function () {
+                return angular.copy(index)
+            } }};
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                var optimizedIndex = {"name":index.name,"maxSegments":result.maxSegments};
+                indexService.optimizeIndex(index.name,result.maxSegments,function(optimizeIndexResult){
+                    $scope.initIndexes();
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
+    };
 }
 IndexCtrl.$inject = ['$scope','$modal','indexService'];
 function NavbarCtrl($scope, $http, $interval) {
@@ -27332,6 +27374,18 @@ function NavbarCtrl($scope, $http, $interval) {
 }
 NavbarCtrl.$inject = ['$scope', '$http', '$interval'];
 
+function OptimizeIndexDialogCtrl ($scope, $modalInstance, index) {
+    $scope.index = index;
+    $scope.optimizedIndex = {
+        "maxSegments":index.numberOfSegments
+    };
+
+    $scope.close = function (result) {
+        $modalInstance.close($scope.optimizedIndex);
+    };
+
+}
+OptimizeIndexDialogCtrl.$inject = ['$scope', '$modalInstance','index'];
 'use strict';
 
 angular.module('myApp.directives.navbar', []).
@@ -27405,6 +27459,34 @@ serviceModule.factory('indexService', ['$http',function ($http) {
         this.changeIndex = function(changedIndex, callback) {
             $http.post('/index/'+changedIndex.name,changedIndex).success(function (data) {
                 callback("The index is changed");
+            });
+            // TODO error handling
+        };
+
+        this.deleteIndex = function(indexName, callback) {
+            $http.delete('/index/'+indexName).success(function (data) {
+                callback("The index is removed");
+            });
+            // TODO error handling
+        };
+
+        this.closeIndex = function(indexName, callback) {
+            $http.post('/index/'+indexName+'/close').success(function (data) {
+                callback("The index is closed");
+            });
+            // TODO error handling
+        };
+
+        this.openIndex = function(indexName, callback) {
+            $http.post('/index/'+indexName+'/open').success(function (data) {
+                callback("The index is opened");
+            });
+            // TODO error handling
+        };
+
+        this.optimizeIndex = function(indexName, maxSegments, callback) {
+            $http.post('/index/'+indexName+'/optimize?max='+maxSegments).success(function (data) {
+                callback("The index optimization is started");
             });
             // TODO error handling
         };
