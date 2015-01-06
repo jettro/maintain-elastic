@@ -25,13 +25,19 @@
                     <button type="button" class="btn btn-default btn-xs" title="Edit" ng-click="editIndexDialog(index)">
                         <span class="fa fa-edit"></span>
                     </button>
-                    <button type="button" class="btn btn-default btn-xs" title="Remove" ng-click="deleteIndex(index)">
+                    <button type="button" class="btn btn-default btn-xs" title="Remove"
+                            confirmed-click="deleteIndex(index)"
+                            ng-confirm-click="Do you want to remove the index {{index.name}}">
                         <span class="fa fa-trash-o"></span>
                     </button>
-                    <button type="button" class="btn btn-default btn-xs" title="Close" ng-click="closeIndex(index)">
+                    <button type="button" class="btn btn-default btn-xs" title="Close"
+                            confirmed-click="closeIndex(index)"
+                            ng-confirm-click="Do you want to close the index {{index.name}}">
                         <span class="fa fa-sign-out"></span>
                     </button>
-                    <button type="button" class="btn btn-default btn-xs" title="Open" ng-click="openIndex(index)">
+                    <button type="button" class="btn btn-default btn-xs" title="Open"
+                            confirm-click="openIndex(index)"
+                            ng-confirm-click="Do you want to open the index {{index.key}}">
                         <span class="fa fa-sign-in"></span>
                     </button>
                     <button type="button" class="btn btn-default btn-xs" title="Optimize" ng-click="optimizeIndexDialog(index)">

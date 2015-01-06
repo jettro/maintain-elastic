@@ -27230,7 +27230,7 @@ angular.module("template/typeahead/typeahead-popup.html", []).run(["$templateCac
 
 'use strict';
 
-var myApp = angular.module('myApp', ['ngRoute','myApp.services','myApp.directives.navbar','ui.bootstrap']);
+var myApp = angular.module('myApp', ['ngRoute','myApp.services','myApp.directives.navbar','myApp.directives.confirm','ui.bootstrap']);
 
 myApp.config(['$routeProvider',function($routeProvider) {
     $routeProvider.when('/dashboard', {templateUrl: '/assets/partials/dashboard.html', controller: 'DashboardCtrl'});
@@ -27386,6 +27386,23 @@ function OptimizeIndexDialogCtrl ($scope, $modalInstance, index) {
 
 }
 OptimizeIndexDialogCtrl.$inject = ['$scope', '$modalInstance','index'];
+angular.module('myApp.directives.confirm', []).
+    directive('ngConfirmClick', [
+        function () {
+            return {
+                link: function (scope, element, attr) {
+                    var msg = attr.ngConfirmClick || "Are you sure?";
+                    var clickAction = attr.confirmedClick;
+                    element.bind('click', function (event) {
+                        if (window.confirm(msg)) {
+                            scope.$eval(clickAction)
+                        }
+                    });
+                }
+            }
+        }
+    ]);
+
 'use strict';
 
 angular.module('myApp.directives.navbar', []).
