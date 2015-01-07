@@ -37,7 +37,7 @@ public class DWESApplication extends Application<DWESConfiguration> {
         environment.lifecycle().manage(esClientManager);
 
         logger.info("Running the application");
-        final IndexResource indexResource = new IndexResource(esClientManager);
+        final IndexResource indexResource = new IndexResource(esClientManager, config.getTempUploadFolder());
         environment.jersey().register(indexResource);
 
         final HomeResource homeResource = new HomeResource(config.getClusterName());

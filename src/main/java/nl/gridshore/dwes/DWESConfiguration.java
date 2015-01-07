@@ -14,6 +14,9 @@ public class DWESConfiguration extends Configuration {
     @NotEmpty
     private String clusterName = "elasticsearch";
 
+    @NotEmpty
+    private String tempUploadFolder = ".";
+
     @JsonProperty
     public String getElasticsearchHost() {
         return elasticsearchHost;
@@ -32,5 +35,15 @@ public class DWESConfiguration extends Configuration {
     @JsonProperty
     public void setClusterName(String clusterName) {
         this.clusterName = clusterName;
+    }
+
+    @JsonProperty
+    public String getTempUploadFolder() {
+        return tempUploadFolder;
+    }
+
+    @JsonProperty
+    public void setTempUploadFolder(String tempUploadFolder) {
+        this.tempUploadFolder = tempUploadFolder;
     }
 }

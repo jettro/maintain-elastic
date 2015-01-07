@@ -1,13 +1,15 @@
 package nl.gridshore.dwes;
 
 import com.codahale.metrics.annotation.Timed;
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
 import nl.gridshore.dwes.elastic.ESClientManager;
 import nl.gridshore.dwes.elastic.ElasticIndex;
+import nl.gridshore.dwes.elastic.IndexCreator;
+import nl.gridshore.dwes.elastic.ScrollAndBulkIndexContentCopier;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.health.ClusterIndexHealth;
-import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.client.ClusterAdminClient;
@@ -20,10 +22,10 @@ import org.elasticsearch.common.hppc.cursors.ObjectObjectCursor;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -34,9 +36,11 @@ import java.util.function.Consumer;
 @Consumes(MediaType.APPLICATION_JSON)
 public class IndexResource {
     private ESClientManager clientManager;
+    private String tempUploadStorage;
 
-    public IndexResource(ESClientManager esClientManager) {
+    public IndexResource(ESClientManager esClientManager, String tempUploadStorage) {
         this.clientManager = esClientManager;
+        this.tempUploadStorage = tempUploadStorage;
     }
 
     @GET
@@ -84,10 +88,9 @@ public class IndexResource {
     @POST
     @Path("/{index}")
     public String changeIndex(@PathParam("index") String index, ChangeIndexRequest request) {
-        Map<String,Object> settings = new HashMap<>();
-        settings.put("number_of_replicas",request.getNumReplicas());
-        UpdateSettingsResponse updateSettingsResponse = indicesClient().prepareUpdateSettings(index)
-                .setSettings(settings).execute().actionGet();
+        Map<String, Object> settings = new HashMap<>();
+        settings.put("number_of_replicas", request.getNumReplicas());
+        indicesClient().prepareUpdateSettings(index).setSettings(settings).execute().actionGet();
         return "OK";
     }
 
@@ -123,6 +126,45 @@ public class IndexResource {
         return "OK";
     }
 
+    @POST
+    @Path("/settings")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public String uploadFiles(@FormDataParam("file") InputStream uploadedInputStream,
+                              @FormDataParam("file") FormDataContentDisposition fileDetail) {
+        String uploadedFile = fileDetail.getFileName() + randomString();
+        writeToFile(uploadedInputStream, tempUploadStorage + uploadedFile);
+        return uploadedFile;
+    }
+
+    @POST
+    @Path("/copy")
+    public String copyIndex(@Valid CopyIndexRequest request) {
+        IndexCreator indexCreator = IndexCreator.build(clientManager.obtainClient(), request.getName())
+                .copyFrom(request.getCopyFrom());
+
+        if (request.getSettings() != null) {
+            indexCreator.settings(readFile(request.getSettings()));
+        }
+        if (request.isRemoveOldAlias()) {
+            indexCreator.removeOldAlias();
+        }
+        if (request.isRemoveOldIndices()) {
+            indexCreator.removeOldIndices();
+        }
+        if (request.isCopyOldData()) {
+            indexCreator.copyOldData(new ScrollAndBulkIndexContentCopier(clientManager.obtainClient()));
+        }
+        if (request.isUseIndexAsExactName()) {
+            indexCreator.useIndexAsExactName();
+        }
+        if (request.getMappings() != null) {
+            request.getMappings().keySet().stream()
+                    .forEach(key -> indexCreator.addMapping(key, readFile(request.getMappings().get(key))));
+        }
+        indexCreator.execute();
+        return "OK";
+    }
+
     private IndicesAdminClient indicesClient() {
         return clientManager.obtainClient().admin().indices();
     }
@@ -131,4 +173,55 @@ public class IndexResource {
         return clientManager.obtainClient().admin().cluster();
     }
 
+    private void writeToFile(InputStream uploadedInputStream,
+                             String uploadedFileLocation) {
+        try {
+            OutputStream out;
+            int read = 0;
+            byte[] bytes = new byte[1024];
+
+            out = new FileOutputStream(new File(uploadedFileLocation));
+            while ((read = uploadedInputStream.read(bytes)) != -1) {
+                out.write(bytes, 0, read);
+            }
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String readFile(String filename) {
+        StringBuilder content = new StringBuilder();
+
+        try (BufferedReader reader = getBufferedReader(filename)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+        } catch (IOException e) {
+//            logger.error("Could not read settings file {}", filename, e);
+            throw new RuntimeException(e);
+        }
+
+        return content.toString();
+    }
+
+    private BufferedReader getBufferedReader(String filename) throws IOException {
+        return new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(tempUploadStorage+filename))));
+    }
+
+
+    private String randomString() {
+        int leftLimit = 97; // letter 'a'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 4;
+        StringBuilder buffer = new StringBuilder(targetStringLength);
+        for (int i = 0; i < targetStringLength; i++) {
+            int randomLimitedInt = leftLimit + (int)
+                    (new Random().nextFloat() * (rightLimit - leftLimit));
+            buffer.append((char) randomLimitedInt);
+        }
+        return buffer.toString();
+    }
 }

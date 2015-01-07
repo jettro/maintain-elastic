@@ -19,7 +19,7 @@
         <tbody>
             <tr ng-repeat="index in indexes">
                 <td>
-                    <button type="button" class="btn btn-default btn-xs" title="Copy">
+                    <button type="button" class="btn btn-default btn-xs" title="Copy" ng-click="copyIndexDialog(index)">
                         <span class="fa fa-files-o"></span>
                     </button>
                     <button type="button" class="btn btn-default btn-xs" title="Edit" ng-click="editIndexDialog(index)">

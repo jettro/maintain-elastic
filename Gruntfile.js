@@ -28,6 +28,7 @@ module.exports = function (grunt) {
                     'bower_components/angular/angular.js',
                     'bower_components/angular-route/angular-route.js',
                     'bower_components/ui-bootstrap/dist/ui-bootstrap-tpls-0.11.2.js',
+                    'bower_components/angular-file-upload/angular-file-upload.js',
                     'src/main/web/js/app.js',
                     'src/main/web/js/controllers/*',
                     'src/main/web/js/directives/*',

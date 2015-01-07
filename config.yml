@@ -1,2 +1,3 @@
 elasticsearchHost: localhost:9300
 clusterName: jc-play
+tempUploadFolder: /Users/jettrocoenradie/temp/uploads/

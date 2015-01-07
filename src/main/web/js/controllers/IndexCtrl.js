@@ -73,5 +73,27 @@ function IndexCtrl($scope,$modal,indexService) {
             // Nothing to do here
         });
     };
+
+    $scope.copyIndexDialog = function(index) {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/copyindex.html',
+            controller: 'CopyIndexDialogCtrl',
+            resolve: {index: function () {
+                return angular.copy(index)
+            } }};
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                indexService.copyIndex(result, function(data) {
+                    $scope.initIndexes();
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
+    };
 }
 IndexCtrl.$inject = ['$scope','$modal','indexService'];

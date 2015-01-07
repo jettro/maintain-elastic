@@ -39,6 +39,11 @@
             <artifactId>dropwizard-assets</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-forms</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
         <!-- Elasticsearch dependencies -->
         <dependency>
             <groupId>org.elasticsearch</groupId>
