@@ -12,6 +12,7 @@
 
     <properties>
         <dropwizard.version>0.7.1</dropwizard.version>
+        <jersey.multipart.version>1.18.1</jersey.multipart.version> <!-- change with dropwizard version -->
         <elasticsearch.version>1.4.2</elasticsearch.version>
 
         <maven.compiler.plugin>3.1</maven.compiler.plugin>
@@ -42,7 +43,7 @@
         <dependency>
             <groupId>com.sun.jersey.contribs</groupId>
             <artifactId>jersey-multipart</artifactId>
-            <version>1.18.1</version>
+            <version>${jersey.multipart.version}</version>
         </dependency>
         <!-- Elasticsearch dependencies -->
         <dependency>

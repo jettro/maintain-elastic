@@ -95,5 +95,11 @@ function IndexCtrl($scope,$modal,indexService) {
             // Nothing to do here
         });
     };
+
+    $scope.createAlias = function(index) {
+        indexService.createAlias(index.name, function(result) {
+            $scope.initIndexes();
+        });
+    };
 }
 IndexCtrl.$inject = ['$scope','$modal','indexService'];

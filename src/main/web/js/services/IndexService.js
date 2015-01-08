@@ -1,9 +1,9 @@
-serviceModule.factory('indexService', ['$http', function ($http) {
-    function IndexService($http) {
+serviceModule.factory('indexService', ['$http','$filter', function ($http,$filter) {
+    function IndexService($http,$filter) {
 
         this.loadIndices = function (callback) {
             $http.get('/index').success(function (data) {
-                callback(data);
+                callback($filter('orderBy')(data, 'name'));
             });
             // TODO error handling
         };
@@ -49,7 +49,14 @@ serviceModule.factory('indexService', ['$http', function ($http) {
             });
             // TODO error handling
         };
+
+        this.createAlias = function(indexName,callback) {
+            $http.post('/index/' + indexName + '/createalias').success(function(data) {
+                callback("The alias is created");
+            });
+            // TODO Error handling
+        };
     }
 
-    return new IndexService($http);
+    return new IndexService($http,$filter);
 }]);

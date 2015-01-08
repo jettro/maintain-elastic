@@ -58,6 +58,7 @@ public class IndexCreator {
     private boolean removeOldIndices = false;
     private boolean removeOldAlias = false;
     private boolean indexIsExactName = false;
+    private boolean replaceWithAlias = false;
     private String copyFrom;
     private List<String> indicesForAlias;
 
@@ -81,6 +82,11 @@ public class IndexCreator {
     }
 
     public void execute() {
+
+        if (this.replaceWithAlias && this.indexContentCopier == null) {
+            throw new IndexCreatorConfigException("aliascopy.missing.indexbuilder");
+        }
+
         initializeIndexToCreate();
 
         findIndexToCopyFromAndIntializeFromAlias();
@@ -96,6 +102,8 @@ public class IndexCreator {
         moveAliasIfRequired();
 
         removeOldIndicesIfRequired();
+
+        createAliasIfRequired();
     }
     
     /* Fluent interface setter methods */
@@ -173,6 +181,19 @@ public class IndexCreator {
     }
 
     /**
+     * Indicate that you just want to use the name of the index as an alias and create a timestamped index just like
+     * the default index creation using this class
+     *
+     * @return part of the fluent interface
+     */
+    public IndexCreator replaceWithAlias() {
+        this.replaceWithAlias = true;
+        this.copyFrom = this.index;
+        this.removeOldIndices = true;
+        return this;
+    }
+
+    /**
      * Means that you do not want the provided index to be the prefix of the actual index and the name of the alias.
      *
      * @return part of fluent interface
@@ -207,7 +228,7 @@ public class IndexCreator {
 
     private void removeOldIndicesIfRequired() {
         if (removeOldIndices) {
-            if (this.indicesForAlias.size() > 0) {
+            if (this.indicesForAlias != null && this.indicesForAlias.size() > 0) {
                 this.indicesForAlias.stream().forEach(this::removeIndex);
             } else {
                 removeIndex(this.copyFrom);
@@ -216,7 +237,13 @@ public class IndexCreator {
     }
 
     private void moveAliasIfRequired() {
-        if (!indexIsExactName) {
+        if (!indexIsExactName && !replaceWithAlias) {
+            moveAlias();
+        }
+    }
+
+    private void createAliasIfRequired() {
+        if (this.replaceWithAlias) {
             moveAlias();
         }
     }
@@ -265,7 +292,7 @@ public class IndexCreator {
     }
 
     private void findIndexToCopyFromAndIntializeFromAlias() {
-        if (!this.indexIsExactName) {
+        if (!this.indexIsExactName && !this.replaceWithAlias) {
             this.indicesForAlias = obtainIndicesForAlias();
             if (this.indicesForAlias.size() > 0) {
                 this.copyFrom = this.indicesForAlias.get(this.indicesForAlias.size() - 1);

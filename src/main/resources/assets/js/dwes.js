@@ -1,4 +1,4 @@
-/*! dwes - v1.0.0 - 2015-01-07
+/*! dwes - v1.0.0 - 2015-01-08
 * https://github.com/jettro/dropwizard-elastic
 * Copyright (c) 2015 ; Licensed  */
 (function(window, document, undefined) {'use strict';
@@ -28722,6 +28722,12 @@ function IndexCtrl($scope,$modal,indexService) {
             // Nothing to do here
         });
     };
+
+    $scope.createAlias = function(index) {
+        indexService.createAlias(index.name, function(result) {
+            $scope.initIndexes();
+        });
+    };
 }
 IndexCtrl.$inject = ['$scope','$modal','indexService'];
 function NavbarCtrl($scope, $http, $interval) {
@@ -28854,12 +28860,12 @@ angular.module('myApp.directives.navbar', []).
     }]);
 
 
-serviceModule.factory('indexService', ['$http', function ($http) {
-    function IndexService($http) {
+serviceModule.factory('indexService', ['$http','$filter', function ($http,$filter) {
+    function IndexService($http,$filter) {
 
         this.loadIndices = function (callback) {
             $http.get('/index').success(function (data) {
-                callback(data);
+                callback($filter('orderBy')(data, 'name'));
             });
             // TODO error handling
         };
@@ -28905,7 +28911,14 @@ serviceModule.factory('indexService', ['$http', function ($http) {
             });
             // TODO error handling
         };
+
+        this.createAlias = function(indexName,callback) {
+            $http.post('/index/' + indexName + '/createalias').success(function(data) {
+                callback("The alias is created");
+            });
+            // TODO Error handling
+        };
     }
 
-    return new IndexService($http);
+    return new IndexService($http,$filter);
 }]);

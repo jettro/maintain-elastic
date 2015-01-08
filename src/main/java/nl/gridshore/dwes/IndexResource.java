@@ -165,6 +165,16 @@ public class IndexResource {
         return "OK";
     }
 
+    @POST
+    @Path("/{index}/createalias")
+    public String createAlias(@PathParam("index") String index) {
+        IndexCreator.build(clientManager.obtainClient(), index)
+                .replaceWithAlias()
+                .copyOldData(new ScrollAndBulkIndexContentCopier(clientManager.obtainClient()))
+                .execute();
+        return "OK";
+    }
+
     private IndicesAdminClient indicesClient() {
         return clientManager.obtainClient().admin().indices();
     }

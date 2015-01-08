@@ -37,7 +37,7 @@
                     </button>
                     <button type="button" class="btn btn-default btn-xs" title="Open"
                             confirmed-click="openIndex(index)"
-                            ng-confirm-click="Do you want to open the index {{index.key}}">
+                            ng-confirm-click="Do you want to open the index {{index.name}}">
                         <span class="fa fa-sign-in"></span>
                     </button>
                     <button type="button" class="btn btn-default btn-xs" title="Optimize" ng-click="optimizeIndexDialog(index)">
@@ -45,7 +45,12 @@
                     </button>
                 </td>
                 <td>{{index.name}}</td>
-                <td>{{index.aliases}}</td>
+                <td ng-show="index.aliases">{{index.aliases}}</td>
+                <td ng-hide="index.aliases"><button type="button" class="btn btn-default btn-xs" title="Create alias"
+                                                    confirmed-click="createAlias(index)"
+                                                    ng-confirm-click="Do you want to create an alias for the index {{index.name}}? Beware this is the same as creating a copy of the index and can take a long time in case you have a big index.">
+                    <span class="fa fa-link"></span>
+                </button></td>
                 <td>{{index.state}}</td>
                 <td>{{index.status}}</td>
                 <td>{{index.numberOfShards}}</td>
