@@ -15,7 +15,9 @@
     <navbaritem link="indexes" title="Index"></navbaritem>
     <navbaritem link="about" title="About"></navbaritem>
 </navbar>
-
+<div class="container-fluid" ng-controller="NotificationCtrl">
+    <alert ng-repeat="(key,value) in alerts" type="{{value.type}}">{{value.message}}</alert>
+</div>
 <div class="container-fluid" ng-view>
 </div>
 

@@ -8,4 +8,13 @@ myApp.config(['$routeProvider',function($routeProvider) {
     $routeProvider.otherwise({redirectTo: '/dashboard'});
 }]);
 
+myApp.factory('$exceptionHandler',['$injector','$log', function($injector,$log) {
+    return function(exception, cause) {
+        $log.error(exception);
+        var errorHandling = $injector.get('errorHandling');
+        errorHandling.add(exception.message);
+        throw exception;
+    };
+}]);
+
 var serviceModule = angular.module('myApp.services', []);

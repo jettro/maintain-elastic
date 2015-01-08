@@ -1,9 +1,9 @@
 /* Controllers */
-function IndexCtrl($scope,$modal,indexService) {
+function IndexCtrl($scope, $modal, indexService, $rootScope) {
     $scope.indexes = [];
 
     $scope.initIndexes = function () {
-        indexService.loadIndices(function(data) {
+        indexService.loadIndices(function (data) {
             $scope.indexes = data;
         });
     };
@@ -15,15 +15,19 @@ function IndexCtrl($scope,$modal,indexService) {
             backdropClick: true,
             templateUrl: 'assets/template/dialog/editindex.html',
             controller: 'EditIndexDialogCtrl',
-            resolve: {index: function () {
-                return angular.copy(index)
-            } }};
+            resolve: {
+                index: function () {
+                    return angular.copy(index)
+                }
+            }
+        };
         var modalInstance = $modal.open(opts);
         modalInstance.result.then(function (result) {
             if (result) {
-                var changedIndex = {"name":index.name,"numReplicas":result.numReplicas};
-                indexService.changeIndex(changedIndex,function(changeIndexResult){
+                var changedIndex = {"name": index.name, "numReplicas": result.numReplicas};
+                indexService.changeIndex(changedIndex, function () {
                     index.numberOfReplicas = result.numReplicas;
+                    createNotification("Changed number of replicas for index " + index.name);
                 });
             }
         }, function () {
@@ -31,42 +35,48 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
-    $scope.deleteIndex = function(index) {
-        indexService.deleteIndex(index.name, function(data) {
+    $scope.deleteIndex = function (index) {
+        indexService.deleteIndex(index.name, function () {
             var i = $scope.indexes.indexOf(index);
-            $scope.indexes.splice(i,1);
+            $scope.indexes.splice(i, 1);
+            createNotification("Deleted the index " + index.name);
         })
     };
 
-    $scope.closeIndex = function(index) {
-        indexService.closeIndex(index.name, function(data) {
-           index.state = "CLOSED";
+    $scope.closeIndex = function (index) {
+        indexService.closeIndex(index.name, function () {
+            index.state = "CLOSED";
+            createNotification("Closed the index " + index.name);
         });
     };
 
-    $scope.openIndex = function(index) {
-        indexService.openIndex(index.name, function(data) {
+    $scope.openIndex = function (index) {
+        indexService.openIndex(index.name, function () {
             $scope.initIndexes();
+            createNotification("Opened the index " + index.name);
         });
 
     };
 
-    $scope.optimizeIndexDialog = function(index) {
+    $scope.optimizeIndexDialog = function (index) {
         var opts = {
             backdrop: true,
             keyboard: true,
             backdropClick: true,
             templateUrl: 'assets/template/dialog/optimizeindex.html',
             controller: 'OptimizeIndexDialogCtrl',
-            resolve: {index: function () {
-                return angular.copy(index)
-            } }};
+            resolve: {
+                index: function () {
+                    return angular.copy(index)
+                }
+            }
+        };
         var modalInstance = $modal.open(opts);
         modalInstance.result.then(function (result) {
             if (result) {
-                var optimizedIndex = {"name":index.name,"maxSegments":result.maxSegments};
-                indexService.optimizeIndex(index.name,result.maxSegments,function(optimizeIndexResult){
+                indexService.optimizeIndex(index.name, result.maxSegments, function () {
                     $scope.initIndexes();
+                    createNotification("Started optimizing the index " + index.name + ". Use refresh to monitor progress");
                 });
             }
         }, function () {
@@ -74,21 +84,25 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
-    $scope.copyIndexDialog = function(index) {
+    $scope.copyIndexDialog = function (index) {
         var opts = {
             backdrop: true,
             keyboard: true,
             backdropClick: true,
             templateUrl: 'assets/template/dialog/copyindex.html',
             controller: 'CopyIndexDialogCtrl',
-            resolve: {index: function () {
-                return angular.copy(index)
-            } }};
+            resolve: {
+                index: function () {
+                    return angular.copy(index)
+                }
+            }
+        };
         var modalInstance = $modal.open(opts);
         modalInstance.result.then(function (result) {
             if (result) {
-                indexService.copyIndex(result, function(data) {
+                indexService.copyIndex(result, function () {
                     $scope.initIndexes();
+                    createNotification("Copied into the index " + index.name);
                 });
             }
         }, function () {
@@ -96,7 +110,7 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
-    $scope.createNewIndexDialog = function() {
+    $scope.createNewIndexDialog = function () {
         var opts = {
             backdrop: true,
             keyboard: true,
@@ -107,8 +121,9 @@ function IndexCtrl($scope,$modal,indexService) {
         var modalInstance = $modal.open(opts);
         modalInstance.result.then(function (result) {
             if (result) {
-                indexService.copyIndex(result, function(data) {
+                indexService.copyIndex(result, function () {
                     $scope.initIndexes();
+                    createNotification("Created the index " + result.name);
                 });
             }
         }, function () {
@@ -116,10 +131,15 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
-    $scope.createAlias = function(index) {
-        indexService.createAlias(index.name, function(result) {
+    $scope.createAlias = function (index) {
+        indexService.createAlias(index.name, function () {
             $scope.initIndexes();
+            createNotification("Created alias for the index " + index.name);
         });
     };
+
+    function createNotification(message) {
+        $rootScope.$broadcast('msg:notification', 'success', message);
+    }
 }
-IndexCtrl.$inject = ['$scope','$modal','indexService'];
+IndexCtrl.$inject = ['$scope', '$modal', 'indexService', '$rootScope'];

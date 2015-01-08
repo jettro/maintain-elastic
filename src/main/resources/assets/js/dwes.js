@@ -28566,6 +28566,15 @@ myApp.config(['$routeProvider',function($routeProvider) {
     $routeProvider.otherwise({redirectTo: '/dashboard'});
 }]);
 
+myApp.factory('$exceptionHandler',['$injector','$log', function($injector,$log) {
+    return function(exception, cause) {
+        $log.error(exception);
+        var errorHandling = $injector.get('errorHandling');
+        errorHandling.add(exception.message);
+        throw exception;
+    };
+}]);
+
 var serviceModule = angular.module('myApp.services', []);
 function CopyIndexDialogCtrl ($scope, $modalInstance, FileUploader, index) {
     var uploader = $scope.uploader = new FileUploader({url: '/index/settings'});
@@ -28664,11 +28673,11 @@ function EditIndexDialogCtrl ($scope, $modalInstance, index) {
 
 }
 EditIndexDialogCtrl.$inject = ['$scope', '$modalInstance','index'];
-function IndexCtrl($scope,$modal,indexService) {
+function IndexCtrl($scope, $modal, indexService, $rootScope) {
     $scope.indexes = [];
 
     $scope.initIndexes = function () {
-        indexService.loadIndices(function(data) {
+        indexService.loadIndices(function (data) {
             $scope.indexes = data;
         });
     };
@@ -28680,15 +28689,19 @@ function IndexCtrl($scope,$modal,indexService) {
             backdropClick: true,
             templateUrl: 'assets/template/dialog/editindex.html',
             controller: 'EditIndexDialogCtrl',
-            resolve: {index: function () {
-                return angular.copy(index)
-            } }};
+            resolve: {
+                index: function () {
+                    return angular.copy(index)
+                }
+            }
+        };
         var modalInstance = $modal.open(opts);
         modalInstance.result.then(function (result) {
             if (result) {
-                var changedIndex = {"name":index.name,"numReplicas":result.numReplicas};
-                indexService.changeIndex(changedIndex,function(changeIndexResult){
+                var changedIndex = {"name": index.name, "numReplicas": result.numReplicas};
+                indexService.changeIndex(changedIndex, function () {
                     index.numberOfReplicas = result.numReplicas;
+                    createNotification("Changed number of replicas for index " + index.name);
                 });
             }
         }, function () {
@@ -28696,42 +28709,48 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
-    $scope.deleteIndex = function(index) {
-        indexService.deleteIndex(index.name, function(data) {
+    $scope.deleteIndex = function (index) {
+        indexService.deleteIndex(index.name, function () {
             var i = $scope.indexes.indexOf(index);
-            $scope.indexes.splice(i,1);
+            $scope.indexes.splice(i, 1);
+            createNotification("Deleted the index " + index.name);
         })
     };
 
-    $scope.closeIndex = function(index) {
-        indexService.closeIndex(index.name, function(data) {
-           index.state = "CLOSED";
+    $scope.closeIndex = function (index) {
+        indexService.closeIndex(index.name, function () {
+            index.state = "CLOSED";
+            createNotification("Closed the index " + index.name);
         });
     };
 
-    $scope.openIndex = function(index) {
-        indexService.openIndex(index.name, function(data) {
+    $scope.openIndex = function (index) {
+        indexService.openIndex(index.name, function () {
             $scope.initIndexes();
+            createNotification("Opened the index " + index.name);
         });
 
     };
 
-    $scope.optimizeIndexDialog = function(index) {
+    $scope.optimizeIndexDialog = function (index) {
         var opts = {
             backdrop: true,
             keyboard: true,
             backdropClick: true,
             templateUrl: 'assets/template/dialog/optimizeindex.html',
             controller: 'OptimizeIndexDialogCtrl',
-            resolve: {index: function () {
-                return angular.copy(index)
-            } }};
+            resolve: {
+                index: function () {
+                    return angular.copy(index)
+                }
+            }
+        };
         var modalInstance = $modal.open(opts);
         modalInstance.result.then(function (result) {
             if (result) {
-                var optimizedIndex = {"name":index.name,"maxSegments":result.maxSegments};
-                indexService.optimizeIndex(index.name,result.maxSegments,function(optimizeIndexResult){
+                indexService.optimizeIndex(index.name, result.maxSegments, function () {
                     $scope.initIndexes();
+                    createNotification("Started optimizing the index " + index.name + ". Use refresh to monitor progress");
                 });
             }
         }, function () {
@@ -28739,21 +28758,25 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
-    $scope.copyIndexDialog = function(index) {
+    $scope.copyIndexDialog = function (index) {
         var opts = {
             backdrop: true,
             keyboard: true,
             backdropClick: true,
             templateUrl: 'assets/template/dialog/copyindex.html',
             controller: 'CopyIndexDialogCtrl',
-            resolve: {index: function () {
-                return angular.copy(index)
-            } }};
+            resolve: {
+                index: function () {
+                    return angular.copy(index)
+                }
+            }
+        };
         var modalInstance = $modal.open(opts);
         modalInstance.result.then(function (result) {
             if (result) {
-                indexService.copyIndex(result, function(data) {
+                indexService.copyIndex(result, function () {
                     $scope.initIndexes();
+                    createNotification("Copied into the index " + index.name);
                 });
             }
         }, function () {
@@ -28761,7 +28784,7 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
-    $scope.createNewIndexDialog = function() {
+    $scope.createNewIndexDialog = function () {
         var opts = {
             backdrop: true,
             keyboard: true,
@@ -28772,8 +28795,9 @@ function IndexCtrl($scope,$modal,indexService) {
         var modalInstance = $modal.open(opts);
         modalInstance.result.then(function (result) {
             if (result) {
-                indexService.copyIndex(result, function(data) {
+                indexService.copyIndex(result, function () {
                     $scope.initIndexes();
+                    createNotification("Created the index " + result.name);
                 });
             }
         }, function () {
@@ -28781,13 +28805,18 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
-    $scope.createAlias = function(index) {
-        indexService.createAlias(index.name, function(result) {
+    $scope.createAlias = function (index) {
+        indexService.createAlias(index.name, function () {
             $scope.initIndexes();
+            createNotification("Created alias for the index " + index.name);
         });
     };
+
+    function createNotification(message) {
+        $rootScope.$broadcast('msg:notification', 'success', message);
+    }
 }
-IndexCtrl.$inject = ['$scope','$modal','indexService'];
+IndexCtrl.$inject = ['$scope', '$modal', 'indexService', '$rootScope'];
 function NavbarCtrl($scope, $http, $interval) {
     var items = [];
 
@@ -28829,6 +28858,19 @@ function NavbarCtrl($scope, $http, $interval) {
 }
 NavbarCtrl.$inject = ['$scope', '$http', '$interval'];
 
+function NotificationCtrl($scope, $timeout){
+    $scope.alerts = {};
+
+    $scope.$on('msg:notification', function (event, type, message) {
+        var id = Math.random().toString(36).substring(2, 5);
+        $scope.alerts[id] = {"type": type, "message": message};
+
+        $timeout(function () {
+            delete $scope.alerts[id];
+        }, 10000);
+    });
+}
+NotificationCtrl.$inject = ['$scope', '$timeout'];
 function OptimizeIndexDialogCtrl ($scope, $modalInstance, index) {
     $scope.index = index;
     $scope.optimizedIndex = {
@@ -28918,65 +28960,93 @@ angular.module('myApp.directives.navbar', []).
     }]);
 
 
-serviceModule.factory('indexService', ['$http','$filter', function ($http,$filter) {
-    function IndexService($http,$filter) {
+serviceModule.factory('errorHandling', ['$rootScope', function ($rootScope) {
+    function ErrorHandling(rootScope) {
+        this.add = function (message) {
+            var errorMessage;
+            if (message && typeof message === "object") {
+                if (message.hasOwnProperty('message')) {
+                    errorMessage = message.message;
+                }
+            } else {
+                errorMessage = message;
+            }
+            rootScope.$broadcast('msg:notification', 'danger', errorMessage);
+        };
+    }
+
+    return new ErrorHandling($rootScope);
+}]);
+
+serviceModule.factory('indexService', ['$http','$filter','$log','$rootScope', function ($http,$filter,$log,$rootScope) {
+    function IndexService($http,$filter,$log) {
 
         this.loadIndices = function (callback) {
             $http.get('/index').success(function (data) {
                 callback($filter('orderBy')(data, 'name'));
-            });
-            // TODO error handling
+            }).error(httpError);
         };
 
         this.changeIndex = function (changedIndex, callback) {
             $http.post('/index/' + changedIndex.name, changedIndex).success(function (data) {
-                callback("The index is changed");
-            });
-            // TODO error handling
+                $log.info("changed the index " + changedIndex.name);
+                callback();
+            }).error(httpError);
         };
 
         this.deleteIndex = function (indexName, callback) {
             $http.delete('/index/' + indexName).success(function (data) {
-                callback("The index is removed");
-            });
-            // TODO error handling
+                $log.info("deleted the index " + indexName);
+                callback();
+            }).error(httpError);
         };
 
         this.closeIndex = function (indexName, callback) {
             $http.post('/index/' + indexName + '/close').success(function (data) {
-                callback("The index is closed");
-            });
-            // TODO error handling
+                $log.info("closed the index " + indexName);
+                callback();
+            }).error(httpError);
         };
 
         this.openIndex = function (indexName, callback) {
             $http.post('/index/' + indexName + '/open').success(function (data) {
-                callback("The index is opened");
-            });
-            // TODO error handling
+                $log.info("opened the index " + indexName);
+                callback();
+            }).error(httpError);
         };
 
         this.optimizeIndex = function (indexName, maxSegments, callback) {
             $http.post('/index/' + indexName + '/optimize?max=' + maxSegments).success(function (data) {
-                callback("The index optimization is started");
-            });
-            // TODO error handling
+                $log.info("optimized the index " + indexName);
+                callback();
+            }).error(httpError);
         };
 
         this.copyIndex = function (copyTo,callback) {
             $http.post('/index/copy', copyTo).success(function (data) {
-                callback("The index is copied");
-            });
-            // TODO error handling
+                $log.info("copied to the index " + copyTo.name);
+                callback();
+            }).error(httpError);
         };
 
         this.createAlias = function(indexName,callback) {
             $http.post('/index/' + indexName + '/createalias').success(function(data) {
-                callback("The alias is created");
-            });
-            // TODO Error handling
+                $log.info("alias created for the index " + indexName);
+                callback();
+            }).error(httpError);
         };
+
+        var httpError = function (data) {
+            var message;
+            if (data.errors && data.errors.length > 0) {
+                message = data.errors[0]
+            } else {
+                message = "Error without a message was thrown";
+            }
+            $log.error(message);
+            $rootScope.$broadcast('msg:notification', 'danger', message);
+        }
     }
 
-    return new IndexService($http,$filter);
+    return new IndexService($http,$filter,$log,$rootScope);
 }]);

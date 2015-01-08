@@ -1,62 +1,72 @@
-serviceModule.factory('indexService', ['$http','$filter', function ($http,$filter) {
-    function IndexService($http,$filter) {
+serviceModule.factory('indexService', ['$http','$filter','$log','$rootScope', function ($http,$filter,$log,$rootScope) {
+    function IndexService($http,$filter,$log) {
 
         this.loadIndices = function (callback) {
             $http.get('/index').success(function (data) {
                 callback($filter('orderBy')(data, 'name'));
-            });
-            // TODO error handling
+            }).error(httpError);
         };
 
         this.changeIndex = function (changedIndex, callback) {
             $http.post('/index/' + changedIndex.name, changedIndex).success(function (data) {
-                callback("The index is changed");
-            });
-            // TODO error handling
+                $log.info("changed the index " + changedIndex.name);
+                callback();
+            }).error(httpError);
         };
 
         this.deleteIndex = function (indexName, callback) {
             $http.delete('/index/' + indexName).success(function (data) {
-                callback("The index is removed");
-            });
-            // TODO error handling
+                $log.info("deleted the index " + indexName);
+                callback();
+            }).error(httpError);
         };
 
         this.closeIndex = function (indexName, callback) {
             $http.post('/index/' + indexName + '/close').success(function (data) {
-                callback("The index is closed");
-            });
-            // TODO error handling
+                $log.info("closed the index " + indexName);
+                callback();
+            }).error(httpError);
         };
 
         this.openIndex = function (indexName, callback) {
             $http.post('/index/' + indexName + '/open').success(function (data) {
-                callback("The index is opened");
-            });
-            // TODO error handling
+                $log.info("opened the index " + indexName);
+                callback();
+            }).error(httpError);
         };
 
         this.optimizeIndex = function (indexName, maxSegments, callback) {
             $http.post('/index/' + indexName + '/optimize?max=' + maxSegments).success(function (data) {
-                callback("The index optimization is started");
-            });
-            // TODO error handling
+                $log.info("optimized the index " + indexName);
+                callback();
+            }).error(httpError);
         };
 
         this.copyIndex = function (copyTo,callback) {
             $http.post('/index/copy', copyTo).success(function (data) {
-                callback("The index is copied");
-            });
-            // TODO error handling
+                $log.info("copied to the index " + copyTo.name);
+                callback();
+            }).error(httpError);
         };
 
         this.createAlias = function(indexName,callback) {
             $http.post('/index/' + indexName + '/createalias').success(function(data) {
-                callback("The alias is created");
-            });
-            // TODO Error handling
+                $log.info("alias created for the index " + indexName);
+                callback();
+            }).error(httpError);
         };
+
+        var httpError = function (data) {
+            var message;
+            if (data.errors && data.errors.length > 0) {
+                message = data.errors[0]
+            } else {
+                message = "Error without a message was thrown";
+            }
+            $log.error(message);
+            $rootScope.$broadcast('msg:notification', 'danger', message);
+        }
     }
 
-    return new IndexService($http,$filter);
+    return new IndexService($http,$filter,$log,$rootScope);
 }]);
