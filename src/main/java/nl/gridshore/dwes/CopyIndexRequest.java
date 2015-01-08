@@ -8,7 +8,6 @@ import java.util.Map;
  * Value object to pass a copy index request
  */
 public class CopyIndexRequest {
-    @NotNull
     private String copyFrom;
     @NotNull
     private String name;

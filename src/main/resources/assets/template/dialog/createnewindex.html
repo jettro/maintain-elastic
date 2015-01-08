@@ -1,8 +1,7 @@
 <div class="modal-header">
-    <h1>Copy index</h1>
+    <h1>Create index</h1>
 </div>
 <div class="modal-body">
-    <p>Copy from index: <strong>{{index.name}}</strong></p>
     <form role="form" class="form form-horizontal">
         <div class="form-group">
             <label for="copyToName" class="col-sm-4 control-label">name or alias</label>
@@ -14,24 +13,6 @@
             <label for="copyToIndexExactName" class="col-sm-4 control-label">Use name as exact name</label>
             <div class="col-sm-1">
                 <input id="copyToIndexExactName" type="checkbox" class="form-control" ng-model="copyTo.useIndexAsExactName"/>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="copyToRemoveOldIndex" class="col-sm-4 control-label">Remove old Indices</label>
-            <div class="col-sm-1">
-                <input id="copyToRemoveOldIndex" type="checkbox" class="form-control" ng-model="copyTo.removeOldIndices"/>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="copyToRemoveOldAlias" class="col-sm-4 control-label">Remove old Alias</label>
-            <div class="col-sm-1">
-                <input id="copyToRemoveOldAlias" type="checkbox" class="form-control" ng-model="copyTo.removeOldAlias"/>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="copyToOldData" class="col-sm-4 control-label">Copy old data</label>
-            <div class="col-sm-1">
-                <input id="copyToOldData" type="checkbox" class="form-control" ng-model="copyTo.copyOldData"/>
             </div>
         </div>
         <p>Upload settings.json and/or type-mapping.json</p>
@@ -102,5 +83,5 @@
     </form>
 </div>
 <div class="modal-footer">
-    <button ng-click="close()" class="btn btn-primary">Copy</button>
+    <button ng-click="close()" class="btn btn-primary">Create</button>
 </div>

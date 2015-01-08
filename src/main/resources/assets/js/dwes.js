@@ -28608,6 +28608,44 @@ function CopyIndexDialogCtrl ($scope, $modalInstance, FileUploader, index) {
 
 }
 CopyIndexDialogCtrl.$inject = ['$scope', '$modalInstance','FileUploader','index'];
+function CreateNewIndexDialogCtrl ($scope, $modalInstance, FileUploader) {
+    var uploader = $scope.uploader = new FileUploader({url: '/index/settings'});
+
+    uploader.onSuccessItem = function(fileItem, response, status, headers) {
+        console.info('onSuccessItem', fileItem, response, status, headers);
+        var reSettings = /^settings\.json.*/;
+        var reMapping = /(\w+)-mapping\.json.*/;
+        var settings = reSettings.exec(response);
+        var mapping = reMapping.exec(response);
+        if (settings) {
+            $scope.copyTo.settings = response;
+        } else if (mapping) {
+            if (!$scope.copyTo.mappings) {
+                $scope.copyTo.mappings = {};
+            }
+            $scope.copyTo.mappings[mapping[1]]=mapping[0];
+        } else {
+            console.log("Unrecognized file type, require ....")
+        }
+        console.log($scope.copyTo);
+    };
+    uploader.onErrorItem = function(fileItem, response, status, headers) {
+        // TODO error handling
+        console.info('onErrorItem', fileItem, response, status, headers);
+    };
+    uploader.onCancelItem = function(fileItem, response, status, headers) {
+        // TODO remove from queue
+        console.info('onCancelItem', fileItem, response, status, headers);
+    };
+
+    $scope.copyTo = {};
+
+    $scope.close = function (result) {
+        $modalInstance.close($scope.copyTo);
+    };
+
+}
+CreateNewIndexDialogCtrl.$inject = ['$scope', '$modalInstance','FileUploader'];
 function DashboardCtrl($scope) {
 
 }
@@ -28711,6 +28749,26 @@ function IndexCtrl($scope,$modal,indexService) {
             resolve: {index: function () {
                 return angular.copy(index)
             } }};
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                indexService.copyIndex(result, function(data) {
+                    $scope.initIndexes();
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
+    };
+
+    $scope.createNewIndexDialog = function() {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/createnewindex.html',
+            controller: 'CreateNewIndexDialogCtrl'
+        };
         var modalInstance = $modal.open(opts);
         modalInstance.result.then(function (result) {
             if (result) {

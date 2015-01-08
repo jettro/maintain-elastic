@@ -96,6 +96,26 @@ function IndexCtrl($scope,$modal,indexService) {
         });
     };
 
+    $scope.createNewIndexDialog = function() {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/createnewindex.html',
+            controller: 'CreateNewIndexDialogCtrl'
+        };
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                indexService.copyIndex(result, function(data) {
+                    $scope.initIndexes();
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
+    };
+
     $scope.createAlias = function(index) {
         indexService.createAlias(index.name, function(result) {
             $scope.initIndexes();
