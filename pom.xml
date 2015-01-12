@@ -5,7 +5,7 @@
     <groupId>nl.gridshore</groupId>
     <artifactId>dropwizard-elastic</artifactId>
     <packaging>jar</packaging>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
 
     <name>Dropwizard Elasticsearch Sample</name>
 
@@ -22,7 +22,7 @@
         <connection>scm:git:git@github.com:jettro/maintain-elastic.git</connection>
         <url>scm:git:git@github.com:jettro/maintain-elastic.git</url>
         <developerConnection>scm:git:git@github.com:jettro/maintain-elastic.git</developerConnection>
-      <tag>dropwizard-elastic-0.1</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <dependencies>
