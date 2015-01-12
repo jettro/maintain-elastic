@@ -5,7 +5,7 @@
     <groupId>nl.gridshore</groupId>
     <artifactId>dropwizard-elastic</artifactId>
     <packaging>jar</packaging>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.1</version>
 
     <name>Dropwizard Elasticsearch Sample</name>
 
