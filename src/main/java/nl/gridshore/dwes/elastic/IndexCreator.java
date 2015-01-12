@@ -38,7 +38,6 @@ import java.util.Map;
  * <p>You can use {@link #removeOldIndices()} to remove the copyFrom index or the indices the alias points to after the
  * creation and copy part have been done. You can also only remove the alias from the old index using
  * {@link #removeOldAlias()}</p>
- * </p>
  * <p>The final bit to configure is to copy the data from the old data into the new index. This is a little bit more
  * effort. You have to provide an implementation of {@link nl.gridshore.dwes.elastic.IndexContentCopier} to do the
  * actual copying. An example implementation is the {@link nl.gridshore.dwes.elastic.ScrollAndBulkIndexContentCopier}</p>

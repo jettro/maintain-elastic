@@ -17,11 +17,10 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 
 /**
- * Elasticsearch client factory bean that returns a client instance. You are responsible for closing the client when
- * you are done with it. Client objects are expensive to use and should be reused within your application.
- * <p/>
- * The host string most be of format "host1:port1,host2:port2"
- * The cluster name must be the name of the cluster than runs on the provided host(s)
+ * <p>Elasticsearch client factory bean that returns a client instance. You are responsible for closing the client when
+ * you are done with it. Client objects are expensive to use and should be reused within your application.</p>
+ * <p>The host string most be of format "host1:port1,host2:port2"</p>
+ * <p>The cluster name must be the name of the cluster than runs on the provided host(s)</p>
  */
 public class ESClientManager implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ESClientManager.class);
