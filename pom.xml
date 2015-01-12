@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>nl.gridshore</groupId>
     <artifactId>dropwizard-elastic</artifactId>
     <packaging>jar</packaging>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
 
     <name>Dropwizard Elasticsearch Sample</name>
 
@@ -23,7 +22,8 @@
         <connection>scm:git:git@github.com:jettro/maintain-elastic.git</connection>
         <url>scm:git:git@github.com:jettro/maintain-elastic.git</url>
         <developerConnection>scm:git:git@github.com:jettro/maintain-elastic.git</developerConnection>
-    </scm>
+      <tag>dropwizard-elastic-0.1</tag>
+  </scm>
 
     <dependencies>
         <dependency>
@@ -96,10 +96,8 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>nl.gridshore.dwes.DWESApplication</mainClass>
                                 </transformer>
                             </transformers>
