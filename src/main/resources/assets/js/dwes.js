@@ -28909,6 +28909,16 @@ function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
         $scope.selectedRepository = repository.name;
     };
 
+    $scope.deleteRepository = function(repository) {
+        snapshotService.deleteRepository(repository.name, function() {
+            if ($scope.selectedRepository === name) {
+                $scope.selectedRepository = "";
+            }
+            $scope.initRepositories();
+        });
+    };
+
+
     $scope.listSnapshots = function() {
 
         if ($scope.selectedRepository !== "") {
@@ -29109,6 +29119,12 @@ serviceModule.factory('snapshotService', ['$http','$filter','$log','$rootScope',
                 } else {
                     callback(false,$filter('orderBy')(data.snapshots, 'name'));
                 }
+            }).error(httpError);
+        };
+
+        this.deleteRepository = function(repository, callback) {
+            $http.delete('/repository/'+repository).success(function(data){
+                callback();
             }).error(httpError);
         };
 

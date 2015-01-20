@@ -10,10 +10,7 @@ import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.common.collect.ImmutableList;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +47,6 @@ public class SnapshotResource {
     @GET
     @Path("/{repositoryName}/snapshots")
     public ElasticSnapshotResponse showSnapshots(@PathParam("repositoryName") String repositoryName) {
-
         SnapshotsStatusResponse snapshotsStatusResponse = clusterClient().prepareSnapshotStatus().execute().actionGet();
         ImmutableList<SnapshotStatus> snapshotStatuses = snapshotsStatusResponse.getSnapshots().asList();
         if (snapshotStatuses.size() > 0) {
@@ -65,6 +61,12 @@ public class SnapshotResource {
                     .collect(Collectors.toList());
             return ElasticSnapshotResponse.availableSnapshots(snapshots);
         }
+    }
+
+    @DELETE
+    @Path("/{repositoryName}")
+    public void deleteRepository(@PathParam("repositoryName") String repositoryName) {
+        clusterClient().prepareDeleteRepository(repositoryName).execute().actionGet();
     }
 
     private ClusterAdminClient clusterClient() {

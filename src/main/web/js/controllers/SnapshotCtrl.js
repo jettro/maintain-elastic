@@ -17,6 +17,16 @@ function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
         $scope.selectedRepository = repository.name;
     };
 
+    $scope.deleteRepository = function(repository) {
+        snapshotService.deleteRepository(repository.name, function() {
+            if ($scope.selectedRepository === name) {
+                $scope.selectedRepository = "";
+            }
+            $scope.initRepositories();
+        });
+    };
+
+
     $scope.listSnapshots = function() {
 
         if ($scope.selectedRepository !== "") {

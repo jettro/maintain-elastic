@@ -17,6 +17,12 @@ serviceModule.factory('snapshotService', ['$http','$filter','$log','$rootScope',
             }).error(httpError);
         };
 
+        this.deleteRepository = function(repository, callback) {
+            $http.delete('/repository/'+repository).success(function(data){
+                callback();
+            }).error(httpError);
+        };
+
         var httpError = function (data) {
             var message;
             if (data.errors && data.errors.length > 0) {
