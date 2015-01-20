@@ -2,6 +2,7 @@ package nl.gridshore.dwes;
 
 import nl.gridshore.dwes.elastic.*;
 import org.elasticsearch.action.admin.cluster.repositories.get.GetRepositoriesResponse;
+import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryRequestBuilder;
 import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsResponse;
 import org.elasticsearch.action.admin.cluster.snapshots.status.SnapshotStatus;
 import org.elasticsearch.action.admin.cluster.snapshots.status.SnapshotsStatusResponse;
@@ -12,7 +13,9 @@ import org.elasticsearch.snapshots.SnapshotInfo;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -69,6 +72,22 @@ public class SnapshotResource {
         clusterClient().prepareDeleteRepository(repositoryName).execute().actionGet();
     }
 
+    @POST
+    public void createRepository(CreateRepositoryrequest request) {
+        PutRepositoryRequestBuilder builder = clusterClient().preparePutRepository(request.getName());
+        String type = "fs";
+        Map<String,Object> settings = new HashMap<>();
+        if ("readonly".equals(request.getType())) {
+            type = "url";
+            settings.put("url", request.getLocation());
+        } else {
+            settings.put("location",request.getLocation());
+        }
+        builder.setType(type);
+        builder.setSettings(settings);
+        builder.execute().actionGet();
+    }
+
     private ClusterAdminClient clusterClient() {
         return clientManager.obtainClient().admin().cluster();
     }
@@ -82,7 +101,7 @@ public class SnapshotResource {
                 repository.setLocation(meta.settings().get("location"));
                 break;
             case "url":
-                repository.setLocation(meta.settings().get("location"));
+                repository.setLocation(meta.settings().get("url"));
                 break;
             case "s3":
                 repository.setLocation(meta.settings().get("bucket"));

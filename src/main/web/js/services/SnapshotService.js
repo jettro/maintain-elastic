@@ -23,6 +23,13 @@ serviceModule.factory('snapshotService', ['$http','$filter','$log','$rootScope',
             }).error(httpError);
         };
 
+        this.createRepository = function(newrepository, callback) {
+            $http.post('/repository',newrepository).success(function(data){
+                callback();
+            }).error(httpError);
+
+        };
+
         var httpError = function (data) {
             var message;
             if (data.errors && data.errors.length > 0) {

@@ -26,7 +26,6 @@ function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
         });
     };
 
-
     $scope.listSnapshots = function() {
 
         if ($scope.selectedRepository !== "") {
@@ -35,6 +34,27 @@ function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
                 $scope.snapshots = snapshots;
             });
         }
+    };
+
+    $scope.createNewRepositoryDialog = function () {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/createsnapshotrepository.html',
+            controller: 'CreateSnapshotRepositoryCtrl'
+        };
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                snapshotService.createRepository(result, function() {
+                    $scope.initRepositories();
+                    $scope.selectedRepository = "";
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
     };
 
 

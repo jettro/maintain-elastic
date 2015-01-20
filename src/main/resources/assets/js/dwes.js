@@ -28662,6 +28662,16 @@ function CreateNewIndexDialogCtrl ($scope, $modalInstance, FileUploader) {
 
 }
 CreateNewIndexDialogCtrl.$inject = ['$scope', '$modalInstance','FileUploader'];
+function CreateSnapshotRepositoryCtrl ($scope, $modalInstance) {
+    $scope.dialog = {"type":"fs"};
+
+    $scope.close = function (result) {
+        $modalInstance.close(result);
+    };
+
+}
+CreateSnapshotRepositoryCtrl.$inject = ['$scope', '$modalInstance'];
+
 function DashboardCtrl($scope) {
 
 }
@@ -28918,7 +28928,6 @@ function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
         });
     };
 
-
     $scope.listSnapshots = function() {
 
         if ($scope.selectedRepository !== "") {
@@ -28927,6 +28936,27 @@ function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
                 $scope.snapshots = snapshots;
             });
         }
+    };
+
+    $scope.createNewRepositoryDialog = function () {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/createsnapshotrepository.html',
+            controller: 'CreateSnapshotRepositoryCtrl'
+        };
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                snapshotService.createRepository(result, function() {
+                    $scope.initRepositories();
+                    $scope.selectedRepository = "";
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
     };
 
 
@@ -29126,6 +29156,13 @@ serviceModule.factory('snapshotService', ['$http','$filter','$log','$rootScope',
             $http.delete('/repository/'+repository).success(function(data){
                 callback();
             }).error(httpError);
+        };
+
+        this.createRepository = function(newrepository, callback) {
+            $http.post('/repository',newrepository).success(function(data){
+                callback();
+            }).error(httpError);
+
         };
 
         var httpError = function (data) {
