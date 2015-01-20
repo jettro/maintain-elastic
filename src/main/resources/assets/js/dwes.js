@@ -1,4 +1,4 @@
-/*! dwes - v1.0.0 - 2015-01-08
+/*! dwes - v1.0.0 - 2015-01-20
 * https://github.com/jettro/dropwizard-elastic
 * Copyright (c) 2015 ; Licensed  */
 (function(window, document, undefined) {'use strict';
@@ -28562,7 +28562,14 @@ var myApp = angular.module('myApp', ['ngRoute','myApp.services','myApp.directive
 
 myApp.config(['$routeProvider',function($routeProvider) {
     $routeProvider.when('/dashboard', {templateUrl: '/assets/partials/dashboard.html', controller: 'DashboardCtrl'});
-    $routeProvider.when('/indexes', {templateUrl: '/assets/partials/indexes.html', controller: 'IndexCtrl'});
+    $routeProvider.when('/indexes', {
+        templateUrl: '/assets/partials/indexes.html',
+        controller: 'IndexCtrl'
+    });
+    $routeProvider.when('/snapshots', {
+        templateUrl: '/assets/partials/snapshots.html',
+        controller: 'SnapshotCtrl'
+    });
     $routeProvider.otherwise({redirectTo: '/dashboard'});
 }]);
 
@@ -28883,6 +28890,41 @@ function OptimizeIndexDialogCtrl ($scope, $modalInstance, index) {
 
 }
 OptimizeIndexDialogCtrl.$inject = ['$scope', '$modalInstance','index'];
+function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
+    $scope.repositories = [];
+    $scope.snapshots = [];
+    $scope.selectedRepository = "";
+
+    $scope.$watch('selectedRepository', function () {
+        $scope.listSnapshots();
+    });
+
+    $scope.initRepositories = function () {
+        snapshotService.loadRepositories(function (data) {
+            $scope.repositories = data;
+        });
+    };
+
+    $scope.selectRepository = function(repository) {
+        $scope.selectedRepository = repository.name;
+    };
+
+    $scope.listSnapshots = function() {
+
+        if ($scope.selectedRepository !== "") {
+            snapshotService.loadSnapshots($scope.selectedRepository, function (running,snapshots) {
+                $scope.running = running;
+                $scope.snapshots = snapshots;
+            });
+        }
+    };
+
+
+    function createNotification(message) {
+        $rootScope.$broadcast('msg:notification', 'success', message);
+    }
+}
+SnapshotCtrl.$inject = ['$scope', '$modal', 'snapshotService', '$rootScope'];
 angular.module('myApp.directives.confirm', []).
     directive('ngConfirmClick', [
         function () {
@@ -29050,3 +29092,38 @@ serviceModule.factory('indexService', ['$http','$filter','$log','$rootScope', fu
 
     return new IndexService($http,$filter,$log,$rootScope);
 }]);
+
+serviceModule.factory('snapshotService', ['$http','$filter','$log','$rootScope', function ($http,$filter,$log,$rootScope) {
+    function SnapshotService($http,$filter,$log) {
+
+        this.loadRepositories = function (callback) {
+            $http.get('/repository').success(function (data) {
+                callback($filter('orderBy')(data, 'name'));
+            }).error(httpError);
+        };
+
+        this.loadSnapshots = function(repository, callback) {
+            $http.get('/repository/'+repository+'/snapshots').success(function (data) {
+                if (data.runningSnapshot) {
+                    callback(true,$filter('orderBy')(data.snapshotStatussus, 'repository'));
+                } else {
+                    callback(false,$filter('orderBy')(data.snapshots, 'name'));
+                }
+            }).error(httpError);
+        };
+
+        var httpError = function (data) {
+            var message;
+            if (data.errors && data.errors.length > 0) {
+                message = data.errors[0]
+            } else {
+                message = "Error without a message was thrown";
+            }
+            $log.error(message);
+            $rootScope.$broadcast('msg:notification', 'danger', message);
+        }
+    }
+
+    return new SnapshotService($http,$filter,$log,$rootScope);
+}]);
+

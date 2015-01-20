@@ -46,6 +46,9 @@ public class DWESApplication extends Application<DWESConfiguration> {
         final ClusterResource clusterResource = new ClusterResource(esClientManager);
         environment.jersey().register(clusterResource);
 
+        final SnapshotResource snapshotResource = new SnapshotResource(esClientManager);
+        environment.jersey().register(snapshotResource);
+
         final ESHealthCheck esHealthCheck = new ESHealthCheck(esClientManager);
         environment.healthChecks().register("elasticsearch", esHealthCheck);
 

@@ -218,7 +218,7 @@ public class IndexResource {
     }
 
     private BufferedReader getBufferedReader(String filename) throws IOException {
-        return new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(tempUploadStorage+filename))));
+        return new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(tempUploadStorage + filename))));
     }
 
 

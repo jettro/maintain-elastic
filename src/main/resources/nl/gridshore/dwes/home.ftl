@@ -13,6 +13,7 @@
 <navbar heading="Elastic tools">
     <navbaritem link="dashboard" title="Dashboard"></navbaritem>
     <navbaritem link="indexes" title="Index"></navbaritem>
+    <navbaritem link="snapshots" title="Snapshot"></navbaritem>
     <navbaritem link="about" title="About"></navbaritem>
 </navbar>
 <div class="container-fluid" ng-controller="NotificationCtrl">

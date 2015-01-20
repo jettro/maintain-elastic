@@ -1,5 +1,6 @@
 package nl.gridshore.dwes;
 
+import nl.gridshore.dwes.ClusterStatus;
 import nl.gridshore.dwes.elastic.ESClientManager;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.ClusterAdminClient;

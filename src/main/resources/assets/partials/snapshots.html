@@ -1,0 +1,106 @@
+<p>Underneath a list of repositories, click on a repository to see the stored snapshots:</p>
+<div ng-init="initRepositories()">
+    <table class="table table-bordered table-condensed table-hover">
+        <thead>
+        <tr>
+            <th>Actions
+                <button type="button" class="btn btn-default btn-xs" title="Refresh"
+                        ng-click="initRepositories()"><span class="fa fa-refresh"></span></button>
+                <button
+                        type="button" class="btn btn-default btn-xs" title="Create index"
+                        ng-click="createNewRepositoryDialog()"><span class="fa fa-plus-square-o"></span></button>
+            </th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Location</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="repository in repositories" ng-class="{success: selectedRepository === repository.name}"
+            ng-click="selectRepository(repository)">
+            <td>
+                <button type="button" class="btn btn-default btn-xs" title="Remove"
+                        confirmed-click="deleteRepository(repository)"
+                        ng-confirm-click="Do you want to remove the repository {{repository.name}}">
+                    <span class="fa fa-trash-o"></span>
+                </button>
+            </td>
+            <td>{{repository.name}}</td>
+            <td>{{repository.type}}</td>
+            <td>{{repository.location}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="row" ng-show="selectedRepository">
+    <div class="col-md-12">
+        <table class="table table-bordered table-hover" ng-hide="running">
+            <caption>This table contains the snapshots in the selected repository.</caption>
+            <thead>
+            <tr>
+                <th>Actions
+                    <button type="button" class="btn btn-default btn-xs" title="Refresh"
+                            ng-click="listSnapshots()"><span class="fa fa-refresh"></span></button>
+                    <button
+                            type="button" class="btn btn-default btn-xs" title="Create index"
+                            ng-click="createNewRepositoryDialog()"><span class="fa fa-plus-square-o"></span></button>
+                </th>
+                <th>Snapshot name</th>
+                <th>Indices</th>
+                <th>Start time</th>
+                <th>End time</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="snapshot in snapshots">
+                <td nowrap>
+                    <!--<button confirmed-click="removeSnapshot(snapshot.snapshot)"-->
+                    <!--ng-confirm-click="Do you want to remove the snapshot {{snapshot.snapshot}}"-->
+                    <!--class="btn btn-link" title="Remove snapshot"><span class=" glyphicon glyphicon-trash"></span></button>-->
+                    <!--<button confirmed-click="restoreSnapshot(snapshot.snapshot)"-->
+                    <!--ng-confirm-click="Do you want to restore the snapshot {{snapshot.snapshot}}"-->
+                    <!--class="btn btn-link" title="Restore snapshot"><span class=" glyphicon glyphicon-repeat"></span></button>-->
+                </td>
+                <td nowrap>{{snapshot.name}}</td>
+                <td>{{snapshot.indexes}}</td>
+                <td nowrap>{{snapshot.startTime}}</td>
+                <td nowrap>{{snapshot.endTime}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div ng-show="running">
+            <!--<button confirmed-click="removeSnapshotFromRepository(snapshot.repository,snapshot.snapshot)"-->
+            <!--ng-confirm-click="Do you want to remove the snapshot {{snapshot.snapshot}}"-->
+            <!--class="btn btn-default" title="Remove snapshot"><span class=" glyphicon glyphicon-trash"></span>Stop snapshot</button>-->
+
+            <table class="table table-condensed">
+                <thead>
+                <tr>
+                    <th>repository</th>
+                    <th>Snapshot</th>
+                    <th>State</th>
+                    <th>Number of files</th>
+                    <th>Processed files</th>
+                    <th>Total size</th>
+                    <th>Processed size</th>
+                    <th>Start time</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="snapshot in snapshots">
+                    <td>{{snapshot.repository}}</td>
+                    <td>{{snapshot.snapshot}}</td>
+                    <td>{{snapshot.state}}</td>
+                    <td>{{snapshot.numberOfFiles}}</td>
+                    <td>{{snapshot.numberOfProcessedFiles}}</td>
+                    <td>{{snapshot.totalSize}}</td>
+                    <td>{{snapshot.processedSize}}</td>
+                    <td>{{snapshot.startTime}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
