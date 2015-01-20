@@ -3,7 +3,7 @@ package nl.gridshore.dwes;
 /**
  * Request object to create a new Repository
  */
-public class CreateRepositoryrequest {
+public class CreateRepositoryRequest {
     private String name;
     private String location;
     private String type;

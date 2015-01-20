@@ -73,7 +73,7 @@ public class SnapshotResource {
     }
 
     @POST
-    public void createRepository(CreateRepositoryrequest request) {
+    public void createRepository(CreateRepositoryRequest request) {
         PutRepositoryRequestBuilder builder = clusterClient().preparePutRepository(request.getName());
         String type = "fs";
         Map<String,Object> settings = new HashMap<>();
