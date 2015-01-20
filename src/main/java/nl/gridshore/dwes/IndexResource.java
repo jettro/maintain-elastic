@@ -10,6 +10,7 @@ import nl.gridshore.dwes.elastic.ScrollAndBulkIndexContentCopier;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
+import org.elasticsearch.action.admin.indices.optimize.OptimizeRequestBuilder;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.client.ClusterAdminClient;
@@ -118,11 +119,11 @@ public class IndexResource {
     @POST
     @Path("/{index}/optimize")
     public String optimizeIndex(@PathParam("index") String index, @QueryParam("max") int maxSegments) {
-        int actualMaxSegments = 0;
+        OptimizeRequestBuilder optimizeRequestBuilder = indicesClient().prepareOptimize(index);
         if (maxSegments != 0) {
-            actualMaxSegments = maxSegments;
+            optimizeRequestBuilder.setMaxNumSegments(maxSegments);
         }
-        indicesClient().prepareOptimize(index).setMaxNumSegments(actualMaxSegments).execute().actionGet();
+        optimizeRequestBuilder.execute().actionGet();
         return "OK";
     }
 
@@ -210,7 +211,6 @@ public class IndexResource {
                 content.append(line);
             }
         } catch (IOException e) {
-//            logger.error("Could not read settings file {}", filename, e);
             throw new RuntimeException(e);
         }
 

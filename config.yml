@@ -1,3 +1,11 @@
 elasticsearchHost: localhost:9300
 clusterName: jc-play
 tempUploadFolder: /Users/jettrocoenradie/temp/uploads/
+
+server:
+  applicationConnectors:
+  - type: http
+    port: 9000
+  adminConnectors:
+  - type: http
+    port: 9001
