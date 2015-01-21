@@ -1,11 +1,14 @@
 package nl.gridshore.dwes;
 
 import nl.gridshore.dwes.elastic.*;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.repositories.get.GetRepositoriesResponse;
 import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryRequestBuilder;
+import org.elasticsearch.action.admin.cluster.snapshots.create.CreateSnapshotRequestBuilder;
 import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsResponse;
 import org.elasticsearch.action.admin.cluster.snapshots.status.SnapshotStatus;
 import org.elasticsearch.action.admin.cluster.snapshots.status.SnapshotsStatusResponse;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.ClusterAdminClient;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.common.collect.ImmutableList;
@@ -13,6 +16,8 @@ import org.elasticsearch.snapshots.SnapshotInfo;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,16 +81,41 @@ public class SnapshotResource {
     public void createRepository(CreateRepositoryRequest request) {
         PutRepositoryRequestBuilder builder = clusterClient().preparePutRepository(request.getName());
         String type = "fs";
-        Map<String,Object> settings = new HashMap<>();
+        Map<String, Object> settings = new HashMap<>();
         if ("readonly".equals(request.getType())) {
             type = "url";
             settings.put("url", request.getLocation());
         } else {
-            settings.put("location",request.getLocation());
+            settings.put("location", request.getLocation());
         }
         builder.setType(type);
         builder.setSettings(settings);
         builder.execute().actionGet();
+    }
+
+    @DELETE
+    @Path("/{repositoryName}/snapshot/{snapshotName}")
+    public void deleteSnapshot(@PathParam("repositoryName") String repositoryName,
+                               @PathParam("snapshotName") String snapshotName) {
+        clusterClient().prepareDeleteSnapshot(repositoryName, snapshotName).execute().actionGet();
+    }
+
+    @POST
+    @Path("/{repositoryName}/snapshot")
+    public void createSnapshot(@PathParam("repositoryName") String repositoryName, CreateSnapshotRequest request) {
+        String name = request.getName();
+        if (StringUtils.isEmpty(name)) {
+            name = request.getPrefix() + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        }
+        CreateSnapshotRequestBuilder snapshotRequestBuilder = clusterClient().prepareCreateSnapshot(repositoryName, name)
+                .setIncludeGlobalState(request.getIncludeGlobalState())
+                .setIndicesOptions(IndicesOptions.fromOptions(request.getIgnoreUnavailable(), false, true, false));
+        if (StringUtils.isEmpty(request.getIndexes())) {
+            snapshotRequestBuilder.setIndices("_all");
+        } else {
+            snapshotRequestBuilder.setIndices(request.getIndexes());
+        }
+        snapshotRequestBuilder.execute().actionGet();
     }
 
     private ClusterAdminClient clusterClient() {

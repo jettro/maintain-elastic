@@ -39,12 +39,12 @@
             <caption>This table contains the snapshots in the selected repository.</caption>
             <thead>
             <tr>
-                <th>Actions
+                <th nowrap>Actions
                     <button type="button" class="btn btn-default btn-xs" title="Refresh"
                             ng-click="listSnapshots()"><span class="fa fa-refresh"></span></button>
                     <button
                             type="button" class="btn btn-default btn-xs" title="Create index"
-                            ng-click="createNewRepositoryDialog()"><span class="fa fa-plus-square-o"></span></button>
+                            ng-click="createNewSnapshotDialog()"><span class="fa fa-plus-square-o"></span></button>
                 </th>
                 <th>Snapshot name</th>
                 <th>Indices</th>
@@ -55,9 +55,9 @@
             <tbody>
             <tr ng-repeat="snapshot in snapshots">
                 <td nowrap>
-                    <!--<button confirmed-click="removeSnapshot(snapshot.snapshot)"-->
-                    <!--ng-confirm-click="Do you want to remove the snapshot {{snapshot.snapshot}}"-->
-                    <!--class="btn btn-link" title="Remove snapshot"><span class=" glyphicon glyphicon-trash"></span></button>-->
+                    <button confirmed-click="removeSnapshot(snapshot.name)"
+                    ng-confirm-click="Do you want to remove the snapshot {{snapshot.name}}"
+                    class="btn btn-default btn-xs" title="Remove snapshot"><span class="fa fa-trash-o"></span></button>
                     <!--<button confirmed-click="restoreSnapshot(snapshot.snapshot)"-->
                     <!--ng-confirm-click="Do you want to restore the snapshot {{snapshot.snapshot}}"-->
                     <!--class="btn btn-link" title="Restore snapshot"><span class=" glyphicon glyphicon-repeat"></span></button>-->
@@ -71,14 +71,14 @@
         </table>
 
         <div ng-show="running">
-            <!--<button confirmed-click="removeSnapshotFromRepository(snapshot.repository,snapshot.snapshot)"-->
-            <!--ng-confirm-click="Do you want to remove the snapshot {{snapshot.snapshot}}"-->
-            <!--class="btn btn-default" title="Remove snapshot"><span class=" glyphicon glyphicon-trash"></span>Stop snapshot</button>-->
-
             <table class="table table-condensed">
                 <thead>
                 <tr>
-                    <th>repository</th>
+                    <th>Actions
+                        <button type="button" class="btn btn-default btn-xs" title="Refresh"
+                                ng-click="listSnapshots()"><span class="fa fa-refresh"></span></button>
+                    </th>
+                    <th>Repository</th>
                     <th>Snapshot</th>
                     <th>State</th>
                     <th>Number of files</th>
@@ -90,6 +90,11 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="snapshot in snapshots">
+                    <td>
+                        <button confirmed-click="removeSnapshotFromRepository(snapshot.repository,snapshot.snapshot)"
+                                ng-confirm-click="Do you want to remove the snapshot {{snapshot.name}}"
+                                class="btn btn-default btn-xs" title="Remove snapshot"><span class="fa fa-trash-o"></span></button>
+                    </td>
                     <td>{{snapshot.repository}}</td>
                     <td>{{snapshot.snapshot}}</td>
                     <td>{{snapshot.state}}</td>

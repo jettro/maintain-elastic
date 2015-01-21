@@ -1,4 +1,4 @@
-/*! dwes - v1.0.0 - 2015-01-20
+/*! dwes - v1.0.0 - 2015-01-21
 * https://github.com/jettro/dropwizard-elastic
 * Copyright (c) 2015 ; Licensed  */
 (function(window, document, undefined) {'use strict';
@@ -28662,6 +28662,16 @@ function CreateNewIndexDialogCtrl ($scope, $modalInstance, FileUploader) {
 
 }
 CreateNewIndexDialogCtrl.$inject = ['$scope', '$modalInstance','FileUploader'];
+function CreateSnapshotCtrl ($scope, $modalInstance) {
+    $scope.dialog = {"includeGlobalState":true,"ignoreUnavailable":false};
+
+    $scope.close = function (result) {
+        $modalInstance.close(result);
+    };
+
+}
+CreateSnapshotCtrl.$inject = ['$scope', '$modalInstance'];
+
 function CreateSnapshotRepositoryCtrl ($scope, $modalInstance) {
     $scope.dialog = {"type":"fs"};
 
@@ -28959,6 +28969,38 @@ function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
         });
     };
 
+    $scope.removeSnapshot = function(snapshot) {
+        snapshotService.removeSnapshot($scope.selectedRepository, snapshot, function() {
+            $scope.listSnapshots();
+        });
+    };
+
+    $scope.removeSnapshotFromRepository = function(repository,snapshot) {
+        snapshotService.removeSnapshot(repository, snapshot, function() {
+            $scope.listSnapshots();
+        });
+    };
+
+    $scope.createNewSnapshotDialog = function () {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/createsnapshot.html',
+            controller: 'CreateSnapshotCtrl'
+        };
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                result.repository = $scope.selectedRepository;
+                snapshotService.createSnapshot(result, function() {
+                    $scope.listSnapshots();
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
+    };
 
     function createNotification(message) {
         $rootScope.$broadcast('msg:notification', 'success', message);
@@ -29162,7 +29204,18 @@ serviceModule.factory('snapshotService', ['$http','$filter','$log','$rootScope',
             $http.post('/repository',newrepository).success(function(data){
                 callback();
             }).error(httpError);
+        };
 
+        this.removeSnapshot = function(repository,snapshot,callback) {
+            $http.delete('/repository/'+repository+'/snapshot/'+snapshot).success(function(data){
+                callback();
+            }).error(httpError);
+        };
+
+        this.createSnapshot = function(newSnapshot,callback) {
+            $http.post('/repository/'+newSnapshot.repository+'/snapshot',newSnapshot).success(function(data) {
+                callback();
+            }).error(httpError);
         };
 
         var httpError = function (data) {

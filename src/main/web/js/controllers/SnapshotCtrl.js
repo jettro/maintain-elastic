@@ -57,6 +57,38 @@ function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
         });
     };
 
+    $scope.removeSnapshot = function(snapshot) {
+        snapshotService.removeSnapshot($scope.selectedRepository, snapshot, function() {
+            $scope.listSnapshots();
+        });
+    };
+
+    $scope.removeSnapshotFromRepository = function(repository,snapshot) {
+        snapshotService.removeSnapshot(repository, snapshot, function() {
+            $scope.listSnapshots();
+        });
+    };
+
+    $scope.createNewSnapshotDialog = function () {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/createsnapshot.html',
+            controller: 'CreateSnapshotCtrl'
+        };
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                result.repository = $scope.selectedRepository;
+                snapshotService.createSnapshot(result, function() {
+                    $scope.listSnapshots();
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
+    };
 
     function createNotification(message) {
         $rootScope.$broadcast('msg:notification', 'success', message);

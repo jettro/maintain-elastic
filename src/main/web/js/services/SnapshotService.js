@@ -27,7 +27,18 @@ serviceModule.factory('snapshotService', ['$http','$filter','$log','$rootScope',
             $http.post('/repository',newrepository).success(function(data){
                 callback();
             }).error(httpError);
+        };
 
+        this.removeSnapshot = function(repository,snapshot,callback) {
+            $http.delete('/repository/'+repository+'/snapshot/'+snapshot).success(function(data){
+                callback();
+            }).error(httpError);
+        };
+
+        this.createSnapshot = function(newSnapshot,callback) {
+            $http.post('/repository/'+newSnapshot.repository+'/snapshot',newSnapshot).success(function(data) {
+                callback();
+            }).error(httpError);
         };
 
         var httpError = function (data) {
