@@ -28570,6 +28570,9 @@ myApp.config(['$routeProvider',function($routeProvider) {
         templateUrl: '/assets/partials/snapshots.html',
         controller: 'SnapshotCtrl'
     });
+    $routeProvider.when('/about', {
+        templateUrl: '/assets/partials/about.html'
+    });
     $routeProvider.otherwise({redirectTo: '/dashboard'});
 }]);
 
