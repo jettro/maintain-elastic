@@ -28688,6 +28688,13 @@ function DashboardCtrl($scope) {
 DashboardCtrl.$inject = ['$scope'];
 
 
+function DeleteIndexesDialogCtrl ($scope, $modalInstance) {
+    $scope.close = function () {
+        $modalInstance.close($scope.indexes);
+    };
+
+}
+DeleteIndexesDialogCtrl.$inject = ['$scope', '$modalInstance'];
 function EditIndexDialogCtrl ($scope, $modalInstance, index) {
     $scope.index = index;
     $scope.changedIndex = {
@@ -28741,7 +28748,28 @@ function IndexCtrl($scope, $modal, indexService, $rootScope) {
             var i = $scope.indexes.indexOf(index);
             $scope.indexes.splice(i, 1);
             createNotification("Deleted the index " + index.name);
-        })
+        });
+    };
+
+    $scope.openDeleteIndexesDialog = function (index) {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/deleteindexes.html',
+            controller: 'DeleteIndexesDialogCtrl'
+        };
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                indexService.deleteIndex(result, function () {
+                    createNotification("Deleted the indexes " + result);
+                    $scope.initIndexes();
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
     };
 
     $scope.closeIndex = function (index) {
