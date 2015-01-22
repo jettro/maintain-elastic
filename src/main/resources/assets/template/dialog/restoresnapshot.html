@@ -1,0 +1,55 @@
+<div class="modal-header">
+    <h1>Restore indexes</h1>
+    <p>from <strong>{{snapshot.repository}}</strong> in <strong>{{snapshot.name}}</strong></p>
+    <p>{{snapshot.indexes}}</p>
+</div>
+<div class="modal-body">
+    <p></p>
+    <form role="form" class="form-horizontal">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Indexes to restore</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" ng-model="dialog.indexes"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Rename pattern</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" ng-model="dialog.renamePattern" placeholder="index_(.+)"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Rename replacement</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" ng-model="dialog.renameReplacement" placeholder="restored_index_$1"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Ignore unavailable</label>
+            <div class="col-sm-8">
+                <label class="checkbox">
+                    <input type="checkbox" ng-model="dialog.ignoreUnavailable">
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Include global state</label>
+            <div class="col-sm-8">
+                <label class="checkbox">
+                    <input type="checkbox" ng-model="dialog.includeGlobalState">
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Include aliases</label>
+            <div class="col-sm-8">
+                <label class="checkbox">
+                    <input type="checkbox" ng-model="dialog.includeAliases">
+                </label>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button ng-click="close(dialog)" class="btn btn-primary">Create snapshot</button>
+</div>

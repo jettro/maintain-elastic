@@ -58,9 +58,8 @@
                     <button confirmed-click="removeSnapshot(snapshot.name)"
                     ng-confirm-click="Do you want to remove the snapshot {{snapshot.name}}"
                     class="btn btn-default btn-xs" title="Remove snapshot"><span class="fa fa-trash-o"></span></button>
-                    <!--<button confirmed-click="restoreSnapshot(snapshot.snapshot)"-->
-                    <!--ng-confirm-click="Do you want to restore the snapshot {{snapshot.snapshot}}"-->
-                    <!--class="btn btn-link" title="Restore snapshot"><span class=" glyphicon glyphicon-repeat"></span></button>-->
+                    <button ng-click="openRestoreSnapshotDialog(snapshot)"
+                    class="btn btn-default btn-xs" title="Restore snapshot"><span class="fa fa-refresh"></span></button>
                 </td>
                 <td nowrap>{{snapshot.name}}</td>
                 <td>{{snapshot.indexes}}</td>

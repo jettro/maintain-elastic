@@ -90,6 +90,31 @@ function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
         });
     };
 
+    $scope.openRestoreSnapshotDialog = function (snapshot) {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/restoresnapshot.html',
+            controller: 'RestoreSnapshotCtrl',
+            resolve: {
+                snapshot: function () {
+                    return angular.copy(snapshot)
+                }
+            }
+        };
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                snapshotService.restoreSnapshot(result, function() {
+                    $scope.listSnapshots();
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
+    };
+
     function createNotification(message) {
         $rootScope.$broadcast('msg:notification', 'success', message);
     }

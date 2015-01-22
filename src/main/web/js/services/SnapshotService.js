@@ -41,6 +41,13 @@ serviceModule.factory('snapshotService', ['$http','$filter','$log','$rootScope',
             }).error(httpError);
         };
 
+        this.restoreSnapshot = function(restoreRequest,callback) {
+            $http.post('/repository/'+restoreRequest.repository+'/snapshot/'+restoreRequest.snapshot,restoreRequest)
+                .success(function(data) {
+                callback();
+            }).error(httpError);
+        };
+
         var httpError = function (data) {
             var message;
             if (data.errors && data.errors.length > 0) {

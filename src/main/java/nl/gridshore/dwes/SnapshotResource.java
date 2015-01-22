@@ -6,6 +6,7 @@ import org.elasticsearch.action.admin.cluster.repositories.get.GetRepositoriesRe
 import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryRequestBuilder;
 import org.elasticsearch.action.admin.cluster.snapshots.create.CreateSnapshotRequestBuilder;
 import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsResponse;
+import org.elasticsearch.action.admin.cluster.snapshots.restore.RestoreSnapshotRequestBuilder;
 import org.elasticsearch.action.admin.cluster.snapshots.status.SnapshotStatus;
 import org.elasticsearch.action.admin.cluster.snapshots.status.SnapshotsStatusResponse;
 import org.elasticsearch.action.support.IndicesOptions;
@@ -22,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 /**
  * Handles all requests related to snapshots.
@@ -65,7 +68,7 @@ public class SnapshotResource {
                     .prepareGetSnapshots(repositoryName).execute().actionGet();
 
             List<ElasticSnapshot> snapshots = snapshotsResponse.getSnapshots().asList().stream()
-                    .map(this::mapFrom)
+                    .map((info) -> mapFrom(repositoryName,info))
                     .collect(Collectors.toList());
             return ElasticSnapshotResponse.availableSnapshots(snapshots);
         }
@@ -118,6 +121,26 @@ public class SnapshotResource {
         snapshotRequestBuilder.execute().actionGet();
     }
 
+    @POST
+    @Path("/{repositoryName}/snapshot/{snapshotName}")
+    public void restoreSnapshot(@PathParam("repositoryName") String repositoryName,
+                                @PathParam("snapshotName") String snapshotName,
+                                RestoreSnapshotRequest request) {
+        RestoreSnapshotRequestBuilder builder = clusterClient().prepareRestoreSnapshot(repositoryName, snapshotName)
+                .setIncludeAliases(request.isIncludeAliases())
+                .setRestoreGlobalState(request.isIncludeGlobalState());
+        if (isNotEmpty(request.getIndexes())) {
+            builder.setIndices(request.getIndexes());
+        }
+        if (isNotEmpty(request.getRenamePattern())) {
+            builder.setRenamePattern(request.getRenamePattern());
+        }
+        if (isNotEmpty(request.getRenameReplacement())) {
+            builder.setRenameReplacement(request.getRenameReplacement());
+        }
+        builder.execute().actionGet();
+    }
+
     private ClusterAdminClient clusterClient() {
         return clientManager.obtainClient().admin().cluster();
     }
@@ -146,8 +169,9 @@ public class SnapshotResource {
         return repository;
     }
 
-    private ElasticSnapshot mapFrom(SnapshotInfo info) {
+    private ElasticSnapshot mapFrom(String repositoryName,SnapshotInfo info) {
         ElasticSnapshot elasticSnapshot = new ElasticSnapshot(info.name());
+        elasticSnapshot.setRepository(repositoryName);
         elasticSnapshot.startTime(info.startTime());
         elasticSnapshot.endTime(info.endTime());
         elasticSnapshot.setState(info.state().name());

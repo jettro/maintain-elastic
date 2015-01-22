@@ -1,4 +1,4 @@
-/*! dwes - v1.0.0 - 2015-01-21
+/*! dwes - v1.0.0 - 2015-01-22
 * https://github.com/jettro/dropwizard-elastic
 * Copyright (c) 2015 ; Licensed  */
 (function(window, document, undefined) {'use strict';
@@ -28910,6 +28910,19 @@ function OptimizeIndexDialogCtrl ($scope, $modalInstance, index) {
 
 }
 OptimizeIndexDialogCtrl.$inject = ['$scope', '$modalInstance','index'];
+function RestoreSnapshotCtrl ($scope, $modalInstance, snapshot) {
+    $scope.snapshot = snapshot;
+    $scope.dialog = {};
+
+    $scope.close = function (result) {
+        result.snapshot = $scope.snapshot.name;
+        result.repository = $scope.snapshot.repository;
+        $modalInstance.close(result);
+    };
+
+}
+RestoreSnapshotCtrl.$inject = ['$scope', '$modalInstance','snapshot'];
+
 function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
     $scope.repositories = [];
     $scope.snapshots = [];
@@ -28994,6 +29007,31 @@ function SnapshotCtrl($scope, $modal, snapshotService, $rootScope) {
             if (result) {
                 result.repository = $scope.selectedRepository;
                 snapshotService.createSnapshot(result, function() {
+                    $scope.listSnapshots();
+                });
+            }
+        }, function () {
+            // Nothing to do here
+        });
+    };
+
+    $scope.openRestoreSnapshotDialog = function (snapshot) {
+        var opts = {
+            backdrop: true,
+            keyboard: true,
+            backdropClick: true,
+            templateUrl: 'assets/template/dialog/restoresnapshot.html',
+            controller: 'RestoreSnapshotCtrl',
+            resolve: {
+                snapshot: function () {
+                    return angular.copy(snapshot)
+                }
+            }
+        };
+        var modalInstance = $modal.open(opts);
+        modalInstance.result.then(function (result) {
+            if (result) {
+                snapshotService.restoreSnapshot(result, function() {
                     $scope.listSnapshots();
                 });
             }
@@ -29214,6 +29252,13 @@ serviceModule.factory('snapshotService', ['$http','$filter','$log','$rootScope',
 
         this.createSnapshot = function(newSnapshot,callback) {
             $http.post('/repository/'+newSnapshot.repository+'/snapshot',newSnapshot).success(function(data) {
+                callback();
+            }).error(httpError);
+        };
+
+        this.restoreSnapshot = function(restoreRequest,callback) {
+            $http.post('/repository/'+restoreRequest.repository+'/snapshot/'+restoreRequest.snapshot,restoreRequest)
+                .success(function(data) {
                 callback();
             }).error(httpError);
         };

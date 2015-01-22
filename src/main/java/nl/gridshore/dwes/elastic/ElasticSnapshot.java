@@ -13,6 +13,7 @@ import java.util.List;
 public class ElasticSnapshot {
     private static DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.SHORT);
     private String name;
+    private String repository;
     private String startTime;
     private String endTime;
     private String state;
@@ -92,6 +93,14 @@ public class ElasticSnapshot {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getRepository() {
+        return repository;
+    }
+
+    public void setRepository(String repository) {
+        this.repository = repository;
     }
 
     public List<ElasticSnapshotError> getErrors() {
