@@ -27,12 +27,14 @@ public class ESClientManager implements Managed {
 
     private final List<String> hosts;
     private final String clusterName;
+    private final String usernamePassword;
 
     private Client client;
 
-    public ESClientManager(String host, String clusterName) {
+    public ESClientManager(String host, String clusterName, String usernamePassword) {
         this.hosts = Arrays.asList(host.split(","));
         this.clusterName = clusterName;
+        this.usernamePassword = usernamePassword;
     }
 
     public Client obtainClient() {
@@ -41,7 +43,10 @@ public class ESClientManager implements Managed {
 
     @Override
     public void start() throws Exception {
-        Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build();
+        Settings settings = ImmutableSettings.settingsBuilder()
+                .put("cluster.name", clusterName)
+                .put("shield.user", usernamePassword)
+                .build();
         logger.debug("Settings used for connection to elasticsearch : {}", settings.toDelimitedString('#'));
 
         List<TransportAddress> addresses = hosts.stream()

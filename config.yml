@@ -1,5 +1,6 @@
 elasticsearchHost: localhost:9300
 clusterName: jc-play
+usernamePassword: jettro:nopiforme
 tempUploadFolder: /Users/jettrocoenradie/temp/uploads/
 
 server:

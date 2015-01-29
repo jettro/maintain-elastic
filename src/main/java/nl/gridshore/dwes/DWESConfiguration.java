@@ -17,6 +17,8 @@ public class DWESConfiguration extends Configuration {
     @NotEmpty
     private String tempUploadFolder = ".";
 
+    private String usernamePassword = "";
+
     @JsonProperty
     public String getElasticsearchHost() {
         return elasticsearchHost;
@@ -45,5 +47,15 @@ public class DWESConfiguration extends Configuration {
     @JsonProperty
     public void setTempUploadFolder(String tempUploadFolder) {
         this.tempUploadFolder = tempUploadFolder;
+    }
+
+    @JsonProperty
+    public String getUsernamePassword() {
+        return usernamePassword;
+    }
+
+    @JsonProperty
+    public void setUsernamePassword(String usernamePassword) {
+        this.usernamePassword = usernamePassword;
     }
 }

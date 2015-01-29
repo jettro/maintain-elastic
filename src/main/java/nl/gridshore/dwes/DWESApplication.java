@@ -33,7 +33,8 @@ public class DWESApplication extends Application<DWESConfiguration> {
 
     @Override
     public void run(DWESConfiguration config, Environment environment) throws Exception {
-        ESClientManager esClientManager = new ESClientManager(config.getElasticsearchHost(), config.getClusterName());
+        ESClientManager esClientManager = new ESClientManager(
+                config.getElasticsearchHost(), config.getClusterName(), config.getUsernamePassword());
         environment.lifecycle().manage(esClientManager);
 
         logger.info("Running the application");
