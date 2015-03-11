@@ -28,8 +28,17 @@ location of the file upload storage. Below is an example configuration.
 
 ```
 elasticsearchHost: localhost:9300
-clusterName: elasticsearch
-tempUploadFolder: /location/of/uploadfolder/
+clusterName: jc-play
+usernamePassword: jettro:nopiforme
+tempUploadFolder: /Users/yourname/temp/uploads/
+
+server:
+  applicationConnectors:
+  - type: http
+    port: 9000
+  adminConnectors:
+  - type: http
+    port: 9001
 ```
 
 ## Run the application
