@@ -1,4 +1,4 @@
-package nl.gridshore.dwes.elastic;
+package nl.gridshore.dwes.index;
 
 /**
  * Exception thrown when the index creator was mis configured.

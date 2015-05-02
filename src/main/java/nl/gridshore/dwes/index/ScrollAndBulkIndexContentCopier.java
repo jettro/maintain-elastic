@@ -1,4 +1,4 @@
-package nl.gridshore.dwes.elastic;
+package nl.gridshore.dwes.index;
 
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;

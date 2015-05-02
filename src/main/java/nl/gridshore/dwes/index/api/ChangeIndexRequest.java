@@ -1,4 +1,4 @@
-package nl.gridshore.dwes;
+package nl.gridshore.dwes.index.api;
 
 import javax.validation.constraints.NotNull;
 

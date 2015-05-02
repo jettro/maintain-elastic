@@ -1,5 +1,7 @@
 package nl.gridshore.dwes.elastic;
 
+import nl.gridshore.dwes.index.IndexCreator;
+import nl.gridshore.dwes.index.IndexCreatorConfigException;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
 import org.elasticsearch.action.admin.indices.alias.exists.AliasesExistResponse;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;

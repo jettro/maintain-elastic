@@ -7,6 +7,7 @@ import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
 import nl.gridshore.dwes.elastic.ESClientManager;
 import nl.gridshore.dwes.elastic.ESHealthCheck;
+import nl.gridshore.dwes.index.DefaultIndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,11 @@ public class DWESApplication extends Application<DWESConfiguration> {
                 config.getElasticsearchHost(), config.getClusterName(), config.getUsernamePassword());
         environment.lifecycle().manage(esClientManager);
 
+        final DefaultIndexManager indexManager = new DefaultIndexManager(esClientManager);
+        environment.lifecycle().manage(indexManager);
+
         logger.info("Running the application");
-        final IndexResource indexResource = new IndexResource(esClientManager, config.getTempUploadFolder());
+        final IndexResource indexResource = new IndexResource(config.getTempUploadFolder(), indexManager);
         environment.jersey().register(indexResource);
 
         final HomeResource homeResource = new HomeResource(config.getClusterName());

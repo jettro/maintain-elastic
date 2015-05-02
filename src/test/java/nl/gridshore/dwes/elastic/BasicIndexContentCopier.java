@@ -1,5 +1,6 @@
 package nl.gridshore.dwes.elastic;
 
+import nl.gridshore.dwes.index.IndexContentCopier;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;

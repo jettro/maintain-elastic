@@ -9,3 +9,4 @@ release.properties
 node_modules
 bower_components
 .sass-cache
+data

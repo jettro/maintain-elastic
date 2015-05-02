@@ -1,4 +1,4 @@
-package nl.gridshore.dwes.elastic;
+package nl.gridshore.dwes.index;
 
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
@@ -39,8 +39,8 @@ import java.util.Map;
  * creation and copy part have been done. You can also only remove the alias from the old index using
  * {@link #removeOldAlias()}</p>
  * <p>The final bit to configure is to copy the data from the old data into the new index. This is a little bit more
- * effort. You have to provide an implementation of {@link nl.gridshore.dwes.elastic.IndexContentCopier} to do the
- * actual copying. An example implementation is the {@link nl.gridshore.dwes.elastic.ScrollAndBulkIndexContentCopier}</p>
+ * effort. You have to provide an implementation of {@link IndexContentCopier} to do the
+ * actual copying. An example implementation is the {@link ScrollAndBulkIndexContentCopier}</p>
  */
 public class IndexCreator {
     private static final Logger logger = LoggerFactory.getLogger(IndexCreator.class);

@@ -1,6 +1,4 @@
-package nl.gridshore.dwes.elastic;
-
-import java.util.Arrays;
+package nl.gridshore.dwes.index.api;
 
 /**
  * Value object to return information about the found indices.

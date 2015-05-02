@@ -1,4 +1,4 @@
-package nl.gridshore.dwes.elastic;
+package nl.gridshore.dwes.index;
 
 /**
  * Interface for implementations that copy all the data from the fromIndex to the toIndex.
