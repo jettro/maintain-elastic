@@ -1,15 +1,15 @@
 package nl.gridshore.dwes.elastic;
 
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
+import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.indices.IndexMissingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -215,14 +215,15 @@ public class IndexCreator {
     private List<String> obtainIndicesForAlias() {
         List<String> foundIndices = new ArrayList<>();
 
-        ImmutableOpenMap<String, List<AliasMetaData>> aliases =
-                client.admin().indices().getAliases(new GetAliasesRequest(index)).actionGet().getAliases();
-        aliases.keysIt().forEachRemaining(foundIndices::add);
+        GetAliasesResponse getAliasesResponse = client.admin().indices().prepareGetAliases(index).get();
+        getAliasesResponse.getAliases().keysIt().forEachRemaining(foundIndices::add);
         return foundIndices;
     }
 
     private void removeIndex(String indexName) {
-        client.admin().indices().prepareDelete(indexName).execute().actionGet();
+        if (indexName != null) {
+            client.admin().indices().prepareDelete(indexName).execute().actionGet();
+        }
     }
 
     private void removeOldIndicesIfRequired() {
@@ -248,7 +249,7 @@ public class IndexCreator {
     }
 
     private void copyDataIfRequired() {
-        if (this.indexContentCopier != null) {
+        if (this.indexContentCopier != null && this.copyFrom != null) {
             indexContentCopier.execute(copyFrom, indexName);
         }
     }
@@ -260,17 +261,22 @@ public class IndexCreator {
     private void initializeMappings() {
         if (mappings == null) {
             if (copyFrom != null) {
-                GetMappingsResponse getMappingsResponse =
-                        client.admin().indices().prepareGetMappings(this.copyFrom).execute().actionGet();
-                ImmutableOpenMap<String, MappingMetaData> mappingsForIndex =
-                        getMappingsResponse.getMappings().get(this.copyFrom);
-                mappingsForIndex.forEach(item -> {
-                    try {
-                        this.indexBuilder.addMapping(item.key, item.value.sourceAsMap());
-                    } catch (IOException e) {
-                        logger.warn("Could not add the mapping for {} from the index {}", item.key, this.copyFrom, e);
-                    }
-                });
+                try {
+                    GetMappingsResponse getMappingsResponse =
+                            client.admin().indices().prepareGetMappings(this.copyFrom).execute().actionGet();
+                    ImmutableOpenMap<String, MappingMetaData> mappingsForIndex =
+                            getMappingsResponse.getMappings().get(this.copyFrom);
+                    mappingsForIndex.forEach(item -> {
+                        try {
+                            this.indexBuilder.addMapping(item.key, item.value.sourceAsMap());
+                        } catch (IOException e) {
+                            logger.warn("Could not add the mapping for {} from the index {}", item.key, this.copyFrom, e);
+                        }
+                    });
+                } catch (IndexMissingException e) {
+                    throw new IndexCreatorConfigException("configured.copyfrom.index.nonexisting");
+                }
+
             }
         } else {
             mappings.forEach(this.indexBuilder::addMapping);
@@ -280,10 +286,14 @@ public class IndexCreator {
     private void initializeSettings() {
         if (settings == null) {
             if (copyFrom != null) {
-                GetSettingsResponse getSettingsResponse =
-                        client.admin().indices().prepareGetSettings(this.copyFrom).execute().actionGet();
-                ImmutableOpenMap<String, Settings> indexToSettings = getSettingsResponse.getIndexToSettings();
-                this.indexBuilder.setSettings(indexToSettings.get(this.copyFrom));
+                try {
+                    GetSettingsResponse getSettingsResponse =
+                            client.admin().indices().prepareGetSettings(this.copyFrom).execute().actionGet();
+                    ImmutableOpenMap<String, Settings> indexToSettings = getSettingsResponse.getIndexToSettings();
+                    this.indexBuilder.setSettings(indexToSettings.get(this.copyFrom));
+                } catch (IndexMissingException e) {
+                    throw new IndexCreatorConfigException("configured.copyfrom.index.nonexisting");
+                }
             }
         } else {
             this.indexBuilder.setSettings(this.settings);
@@ -291,7 +301,12 @@ public class IndexCreator {
     }
 
     private void findIndexToCopyFromAndIntializeFromAlias() {
-        if (!this.indexIsExactName && !this.replaceWithAlias) {
+        if (this.copyFrom != null) {
+            // Find out if the index to copy from is an alias
+            if (client.admin().indices().prepareAliasesExist(this.copyFrom).get().exists()) {
+                throw new IndexCreatorConfigException("configured.copyfrom.index.isanalias");
+            }
+        } else if (!this.indexIsExactName && !this.replaceWithAlias) {
             this.indicesForAlias = obtainIndicesForAlias();
             if (this.indicesForAlias.size() > 0) {
                 this.copyFrom = this.indicesForAlias.get(this.indicesForAlias.size() - 1);

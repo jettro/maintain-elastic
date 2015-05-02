@@ -21,16 +21,12 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
  * TODO fails with a closed index
  */
 public class ScrollAndBulkIndexContentCopier implements IndexContentCopier {
-    private static final Logger logger = LoggerFactory.getLogger(ScrollAndBulkIndexContentCopier.class);
-
     public static final int SCROLL_TIMEOUT_SECONDS = 60;
     public static final int SCROLL_SIZE = 100;
     public static final int BULK_ACTIONS_THRESHOLD = 100;
     public static final int BULK_CONCURRENT_REQUESTS = 1;
     public static final int BULK_FLUSH_DURATION = 30;
-
-    private String fromIndex;
-    private String toIndex;
+    private static final Logger logger = LoggerFactory.getLogger(ScrollAndBulkIndexContentCopier.class);
     private Client client;
 
     public ScrollAndBulkIndexContentCopier(Client client) {
