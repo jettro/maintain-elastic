@@ -9,8 +9,6 @@ import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeRequestBuilder;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
-import org.elasticsearch.client.ClusterAdminClient;
-import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
@@ -33,9 +31,9 @@ public class DefaultIndexManager implements IndexManager, Managed {
 
     @Override
     public List<ElasticIndex> obtainIndexes() {
-        ClusterStateResponse clusterState = clusterClient().prepareState().get();
-        ClusterHealthResponse clusterHealth = clusterClient().prepareHealth().get();
-        IndicesStatsResponse clusterStats = indicesClient().prepareStats().get();
+        ClusterStateResponse clusterState = esClientManager.obtainClusterClient().prepareState().get();
+        ClusterHealthResponse clusterHealth = esClientManager.obtainClusterClient().prepareHealth().get();
+        IndicesStatsResponse clusterStats = esClientManager.obtainIndicesClient().prepareStats().get();
 
         List<ElasticIndex> indices = new ArrayList<>();
         ImmutableOpenMap<String, IndexMetaData> stateIndices = clusterState.getState().metaData().indices();
@@ -73,27 +71,27 @@ public class DefaultIndexManager implements IndexManager, Managed {
     public void changeIndexSettings(ChangeIndexRequest request) {
         Map<String, Object> settings = new HashMap<>();
         settings.put("number_of_replicas", request.getNumReplicas());
-        indicesClient().prepareUpdateSettings(request.getName()).setSettings(settings).get();
+        esClientManager.obtainIndicesClient().prepareUpdateSettings(request.getName()).setSettings(settings).get();
     }
 
     @Override
     public void removeIndex(String index) {
-        indicesClient().prepareDelete(index).get();
+        esClientManager.obtainIndicesClient().prepareDelete(index).get();
     }
 
     @Override
     public void closeIndex(String index) {
-        indicesClient().prepareClose(index).get();
+        esClientManager.obtainIndicesClient().prepareClose(index).get();
     }
 
     @Override
     public void openIndex(String index) {
-        indicesClient().prepareOpen(index).get();
+        esClientManager.obtainIndicesClient().prepareOpen(index).get();
     }
 
     @Override
     public void optimizeIndex(OptimizeIndexRequest request) {
-        OptimizeRequestBuilder optimizeRequestBuilder = indicesClient().prepareOptimize(request.getName());
+        OptimizeRequestBuilder optimizeRequestBuilder = esClientManager.obtainIndicesClient().prepareOptimize(request.getName());
         if (request.getMaxSegments() != 0) {
             optimizeRequestBuilder.setMaxNumSegments(request.getMaxSegments());
         }
@@ -133,14 +131,6 @@ public class DefaultIndexManager implements IndexManager, Managed {
                 .replaceWithAlias()
                 .copyOldData(new ScrollAndBulkIndexContentCopier(esClientManager.obtainClient()))
                 .execute();
-    }
-
-    ClusterAdminClient clusterClient() {
-        return esClientManager.obtainClient().admin().cluster();
-    }
-
-    IndicesAdminClient indicesClient() {
-        return esClientManager.obtainClient().admin().indices();
     }
 
     @Override

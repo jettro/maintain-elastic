@@ -2,10 +2,11 @@ package nl.gridshore.dwes.elastic;
 
 import io.dropwizard.lifecycle.Managed;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.ClusterAdminClient;
+import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -39,6 +39,14 @@ public class ESClientManager implements Managed {
 
     public Client obtainClient() {
         return this.client;
+    }
+
+    public ClusterAdminClient obtainClusterClient() {
+        return this.client.admin().cluster();
+    }
+
+    public IndicesAdminClient obtainIndicesClient() {
+        return this.client.admin().indices();
     }
 
     @Override

@@ -8,6 +8,7 @@ import io.dropwizard.views.ViewBundle;
 import nl.gridshore.dwes.elastic.ESClientManager;
 import nl.gridshore.dwes.elastic.ESHealthCheck;
 import nl.gridshore.dwes.index.DefaultIndexManager;
+import nl.gridshore.dwes.snapshot.DefaultSnapshotManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,9 @@ public class DWESApplication extends Application<DWESConfiguration> {
         final DefaultIndexManager indexManager = new DefaultIndexManager(esClientManager);
         environment.lifecycle().manage(indexManager);
 
+        final DefaultSnapshotManager snapshotManager = new DefaultSnapshotManager(esClientManager);
+        environment.lifecycle().manage(snapshotManager);
+
         logger.info("Running the application");
         final IndexResource indexResource = new IndexResource(config.getTempUploadFolder(), indexManager);
         environment.jersey().register(indexResource);
@@ -51,7 +55,7 @@ public class DWESApplication extends Application<DWESConfiguration> {
         final ClusterResource clusterResource = new ClusterResource(esClientManager);
         environment.jersey().register(clusterResource);
 
-        final SnapshotResource snapshotResource = new SnapshotResource(esClientManager);
+        final SnapshotResource snapshotResource = new SnapshotResource(snapshotManager);
         environment.jersey().register(snapshotResource);
 
         final ESHealthCheck esHealthCheck = new ESHealthCheck(esClientManager);

@@ -1,4 +1,4 @@
-package nl.gridshore.dwes.elastic;
+package nl.gridshore.dwes.snapshot.api;
 
 /**
  * Request object for restoring a snapshot

@@ -1,4 +1,4 @@
-package nl.gridshore.dwes;
+package nl.gridshore.dwes.snapshot.api;
 
 /**
  * Object to contain all parameters required to create a snapshot.

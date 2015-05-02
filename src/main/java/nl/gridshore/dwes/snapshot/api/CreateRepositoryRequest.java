@@ -1,12 +1,12 @@
-package nl.gridshore.dwes.elastic;
+package nl.gridshore.dwes.snapshot.api;
 
 /**
- * Value class to use as a transport of information about a repository.
+ * Request object to create a new Repository
  */
-public class ElasticRepository {
+public class CreateRepositoryRequest {
     private String name;
-    private String type;
     private String location;
+    private String type;
 
     public String getLocation() {
         return location;
