@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 /**
@@ -105,7 +106,7 @@ public class DefaultSnapshotManager implements SnapshotManager, Managed {
         if (StringUtils.isEmpty(request.getIndexes())) {
             snapshotRequestBuilder.setIndices("_all");
         } else {
-            snapshotRequestBuilder.setIndices(request.getIndexes());
+            snapshotRequestBuilder.setIndices(request.getIndexes().split(","));
         }
         snapshotRequestBuilder.get();
     }
@@ -117,16 +118,18 @@ public class DefaultSnapshotManager implements SnapshotManager, Managed {
                 .setIncludeAliases(request.isIncludeAliases())
                 .setRestoreGlobalState(request.isIncludeGlobalState());
         if (isNotEmpty(request.getIndexes())) {
-            builder.setIndices(request.getIndexes());
+            builder.setIndices(request.getIndexes().split(","));
         }
         if (isNotEmpty(request.getRenamePattern())) {
             builder.setRenamePattern(request.getRenamePattern());
         }
         if (isNotEmpty(request.getRenameReplacement())) {
+            if (isEmpty(request.getRenamePattern()) && isNotEmpty(request.getIndexes())) {
+                builder.setRenamePattern(request.getIndexes());
+            }
             builder.setRenameReplacement(request.getRenameReplacement());
         }
-        builder.execute().actionGet();
-
+        builder.get();
     }
 
     @Override

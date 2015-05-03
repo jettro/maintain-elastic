@@ -5,7 +5,7 @@ import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
-import nl.gridshore.dwes.elastic.ESClientManager;
+import nl.gridshore.dwes.elastic.DefaultESClientManager;
 import nl.gridshore.dwes.elastic.ESHealthCheck;
 import nl.gridshore.dwes.index.DefaultIndexManager;
 import nl.gridshore.dwes.snapshot.DefaultSnapshotManager;
@@ -35,7 +35,7 @@ public class DWESApplication extends Application<DWESConfiguration> {
 
     @Override
     public void run(DWESConfiguration config, Environment environment) throws Exception {
-        ESClientManager esClientManager = new ESClientManager(
+        DefaultESClientManager esClientManager = new DefaultESClientManager(
                 config.getElasticsearchHost(), config.getClusterName(), config.getUsernamePassword());
         environment.lifecycle().manage(esClientManager);
 
