@@ -6,6 +6,7 @@ import nl.gridshore.dwes.index.api.*;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeRequestBuilder;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
@@ -122,6 +123,12 @@ public class DefaultIndexManager implements IndexManager, Managed {
             request.getMappings().keySet().stream()
                     .forEach(key -> indexCreator.addMapping(key, request.getMappings().get(key)));
         }
+        if (request.getSettingsIdentifier() != null) {
+            indexCreator.settingsIdentifier(request.getSettingsIdentifier());
+        }
+        if (request.getMappingsIdentifier() != null) {
+            indexCreator.mappingsIdentifier(request.getMappingsIdentifier());
+        }
         indexCreator.execute();
     }
 
@@ -131,6 +138,19 @@ public class DefaultIndexManager implements IndexManager, Managed {
                 .replaceWithAlias()
                 .copyOldData(new ScrollAndBulkIndexContentCopier(esClientManager.obtainClient()))
                 .execute();
+    }
+
+    @Override
+    public boolean isUpdateRequiredFor(String index, String settingsIdentifier, String mappingsIdentifier) {
+        GetIndexResponse getIndexResponse = esClientManager.obtainIndicesClient().prepareGetIndex().setIndices(index).get();
+        String[] indices = getIndexResponse.getIndices();
+        String foundIndex = indices[0]; // TODO jettro: check if this is what we want, what if we have more indexes?
+        // TODO jettro: What if these settings are not available?
+        String shaSettingsFromIndex = getIndexResponse.settings().get(foundIndex).get("index." + IndexCreator.META_SETTINGS_IDENTIFIER);
+        String shaMappingsFromIndex = getIndexResponse.settings().get(foundIndex).get("index." + IndexCreator.META_MAPPINGS_IDENTIFIER);
+
+        return (settingsIdentifier != null && !settingsIdentifier.equals(shaSettingsFromIndex))
+                || (mappingsIdentifier != null && !mappingsIdentifier.equals(shaMappingsFromIndex));
     }
 
     @Override

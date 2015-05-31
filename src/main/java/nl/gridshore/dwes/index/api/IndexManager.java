@@ -64,4 +64,14 @@ public interface IndexManager {
      * @param index String containing te name of the index to create an alias for.
      */
     void createAliasFor(String index);
+
+    /**
+     * Checks if the requested index needs to have an update using the provided settings and mappings identifiers.
+     *
+     * @param index              String containing the name of the index to check
+     * @param settingsIdentifier String containing the identifier of the provided settings
+     * @param mappingsIdentifier String containing the ideitifier of the provided mappings
+     * @return true if the provided identifiers to not match the stored identifiers, false otherwise.
+     */
+    boolean isUpdateRequiredFor(String index, String settingsIdentifier, String mappingsIdentifier);
 }

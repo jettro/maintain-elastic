@@ -11,11 +11,13 @@ public class CopyIndexRequest {
     private String copyFrom;
     @NotNull
     private String name;
-    private Map<String,String> mappings;
     private boolean copyOldData;
     private boolean removeOldIndices;
     private boolean removeOldAlias;
+    private Map<String, String> mappings;
     private String settings;
+    private String settingsIdentifier;
+    private String mappingsIdentifier;
     private boolean useIndexAsExactName;
 
     public String getCopyFrom() {
@@ -82,15 +84,32 @@ public class CopyIndexRequest {
         this.removeOldAlias = removeOldAlias;
     }
 
+    public String getMappingsIdentifier() {
+        return mappingsIdentifier;
+    }
+
+    public void setMappingsIdentifier(String mappingsIdentifier) {
+        this.mappingsIdentifier = mappingsIdentifier;
+    }
+
+    public String getSettingsIdentifier() {
+        return settingsIdentifier;
+    }
+
+    public void setSettingsIdentifier(String settingsIdentifier) {
+        this.settingsIdentifier = settingsIdentifier;
+    }
+
     @Override
     public String toString() {
         return "CopyIndexRequest{" +
                 "copyFrom='" + copyFrom + '\'' +
                 ", name='" + name + '\'' +
-                ", mappings=" + mappings +
                 ", copyOldData=" + copyOldData +
                 ", removeOldIndices=" + removeOldIndices +
-                ", settings='" + settings + '\'' +
+                ", removeOldAlias=" + removeOldAlias +
+                ", settingsIdentifier='" + settingsIdentifier + '\'' +
+                ", mappingsIdentifier='" + mappingsIdentifier + '\'' +
                 ", useIndexAsExactName=" + useIndexAsExactName +
                 '}';
     }

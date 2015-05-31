@@ -8,6 +8,7 @@ import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.indices.IndexMissingException;
 import org.slf4j.Logger;
@@ -43,9 +44,10 @@ import java.util.Map;
  * actual copying. An example implementation is the {@link ScrollAndBulkIndexContentCopier}</p>
  */
 public class IndexCreator {
+    public static final String META_SETTINGS_IDENTIFIER = "_meta.settings_identifier";
+    public static final String META_MAPPINGS_IDENTIFIER = "_meta.mappings_identifier";
     private static final Logger logger = LoggerFactory.getLogger(IndexCreator.class);
     private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-
     private String index;
     private Client client;
     private CreateIndexRequestBuilder indexBuilder;
@@ -54,6 +56,8 @@ public class IndexCreator {
     private String indexName;
     private String settings;
     private Map<String, String> mappings;
+    private String settingsIdentifier;
+    private String mappingsIdentifier;
     private boolean removeOldIndices = false;
     private boolean removeOldAlias = false;
     private boolean indexIsExactName = false;
@@ -202,6 +206,28 @@ public class IndexCreator {
         return this;
     }
 
+    /**
+     * Provide a settingsIdentifier to store in the index as meta data.
+     *
+     * @param identifier String containing the settings identifier
+     * @return part of fluent interface
+     */
+    public IndexCreator settingsIdentifier(String identifier) {
+        this.settingsIdentifier = identifier;
+        return this;
+    }
+
+    /**
+     * Provide a mappings identifier to store in the idnex as meta data.
+     *
+     * @param identifier String containing the mappings identifier
+     * @return part of fluent interface
+     */
+    public IndexCreator mappingsIdentifier(String identifier) {
+        this.mappingsIdentifier = identifier;
+        return this;
+    }
+
     /* private worker methods */
     private void moveAlias() {
         IndicesAliasesRequestBuilder indicesAliasesRequestBuilder = client.admin().indices().prepareAliases();
@@ -291,12 +317,22 @@ public class IndexCreator {
                             client.admin().indices().prepareGetSettings(this.copyFrom).execute().actionGet();
                     ImmutableOpenMap<String, Settings> indexToSettings = getSettingsResponse.getIndexToSettings();
                     this.indexBuilder.setSettings(indexToSettings.get(this.copyFrom));
+                    //TODO check if special sha properties are also copied
+
                 } catch (IndexMissingException e) {
                     throw new IndexCreatorConfigException("configured.copyfrom.index.nonexisting");
                 }
             }
         } else {
-            this.indexBuilder.setSettings(this.settings);
+            ImmutableSettings.Builder builder = ImmutableSettings.builder().loadFromSource(this.settings);
+            if (this.settingsIdentifier != null) {
+                builder.put(META_SETTINGS_IDENTIFIER, settingsIdentifier);
+            }
+            if (this.mappingsIdentifier != null) {
+                builder.put(META_MAPPINGS_IDENTIFIER, mappingsIdentifier);
+            }
+
+            this.indexBuilder.setSettings(builder.build());
         }
     }
 

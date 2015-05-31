@@ -1,7 +1,9 @@
 package nl.gridshore.dwes.elastic;
 
+import nl.gridshore.dwes.index.DefaultIndexManager;
 import nl.gridshore.dwes.index.IndexCreator;
 import nl.gridshore.dwes.index.IndexCreatorConfigException;
+import nl.gridshore.dwes.index.api.IndexManager;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
 import org.elasticsearch.action.admin.indices.alias.exists.AliasesExistResponse;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
@@ -166,6 +168,37 @@ public class IndexCreatorIntegrationTest extends ElasticsearchIntegrationTest {
         assertNotEquals(newIndex, originalIndexName);
     }
 
+    @Test
+    public void checkBasicCreate_withIdentifiers() {
+        String index1 = "basic-create-1";
+        IndexCreator.build(client(), index1)
+                .settings("{number_of_replicas:0,number_of_shards:1}")
+                .settingsIdentifier("bla")
+                .execute();
+        assertTrue(checkAliasExists(index1));
+        String index = checkIndexForAlias(index1);
+        assertTrue(indexExists(index));
+
+        IndexManager indexManager = new DefaultIndexManager(new DummyESClientManager(client()));
+        boolean isUpdateRequired = indexManager.isUpdateRequiredFor(index1, "bla", null);
+        assertFalse(isUpdateRequired);
+    }
+
+    @Test
+    public void checkBasicCreate_withWrongIdentifiers() {
+        String index1 = "basic-create-1";
+        IndexCreator.build(client(), index1)
+                .settings("{number_of_replicas:0,number_of_shards:1}")
+                .settingsIdentifier("bla")
+                .execute();
+        assertTrue(checkAliasExists(index1));
+        String index = checkIndexForAlias(index1);
+        assertTrue(indexExists(index));
+
+        IndexManager indexManager = new DefaultIndexManager(new DummyESClientManager(client()));
+        boolean isUpdateRequired = indexManager.isUpdateRequiredFor(index1, "nohabla", null);
+        assertTrue(isUpdateRequired);
+    }
 
     // Utility methods
     private boolean checkAliasExists(String alias) {
