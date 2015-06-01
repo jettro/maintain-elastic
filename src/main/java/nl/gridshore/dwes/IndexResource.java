@@ -87,7 +87,10 @@ public class IndexResource {
     @Path("/copy")
     public String copyIndex(@Valid CopyIndexRequest request) {
         if (request.getSettings() != null) {
-            request.setSettings(readFile(request.getSettings()));
+            String settings = readFile(request.getSettings());
+            request.setSettings(settings);
+            String settingsIdentifier = new ShaBasedSettingsIdentifier(settings).asString();
+            request.setSettingsIdentifier(settingsIdentifier);
         }
         if (request.getMappings() != null && !request.getMappings().isEmpty()) {
             Map<String, String> newMappings = new HashMap<>();
@@ -95,6 +98,8 @@ public class IndexResource {
                 newMappings.put(type, readFile(filename));
             });
             request.setMappings(newMappings);
+            String mappingsIdentifier = new ShaBasedMappingsIdentifier(newMappings).asString();
+            request.setMappingsIdentifier(mappingsIdentifier);
         }
         indexManager.copyIndex(request);
         return "OK";
