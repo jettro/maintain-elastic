@@ -1,6 +1,8 @@
 Maintain-elastic
 ==================
 
+[![Join the chat at https://gitter.im/jettro/maintain-elastic](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jettro/maintain-elastic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Application with utilities to maintain Elasticsearch. At the moment the focus is on indexes. You can change some
 properties like number_of_replicas, but you can also close/open/optimize/delete the indexes. A very interesting feature
 is to copy indexes with a number of options. Check the functions section.
