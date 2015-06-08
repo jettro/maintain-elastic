@@ -1,4 +1,4 @@
-/*! dwes - v1.0.0 - 2015-01-22
+/*! dwes - v1.0.0 - 2015-06-08
 * https://github.com/jettro/dropwizard-elastic
 * Copyright (c) 2015 ; Licensed  */
 (function(window, document, undefined) {'use strict';
