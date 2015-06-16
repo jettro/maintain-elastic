@@ -112,7 +112,7 @@ public class ElasticSnapshot {
     }
 
     private String convertFromEpochSeconds(long epochSeconds) {
-        return LocalDateTime.ofEpochSecond(epochSeconds, 0, ZoneOffset.UTC).format(DATE_FORMATTER);
+        return LocalDateTime.ofEpochSecond(epochSeconds / 1000, 0, ZoneOffset.UTC).format(DATE_FORMATTER);
     }
 
     public class ElasticSnapshotError {
