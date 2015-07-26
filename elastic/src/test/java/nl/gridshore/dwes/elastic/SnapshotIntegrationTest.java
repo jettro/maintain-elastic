@@ -3,6 +3,8 @@ package nl.gridshore.dwes.elastic;
 import nl.gridshore.dwes.snapshot.DefaultSnapshotManager;
 import nl.gridshore.dwes.snapshot.api.*;
 import org.elasticsearch.action.count.CountResponse;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
 import org.junit.Before;
@@ -28,6 +30,13 @@ public class SnapshotIntegrationTest extends ElasticsearchIntegrationTest {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
     private DefaultSnapshotManager snapshotManager;
+
+    @Override
+    protected Settings nodeSettings(int nodeOrdinal) {
+        return ImmutableSettings.settingsBuilder()
+                .put("path.repo", "/")
+                .put(super.nodeSettings(nodeOrdinal)).build();
+    }
 
     @Override
     @Before

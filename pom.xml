@@ -18,7 +18,7 @@
     <properties>
         <dropwizard.version>0.7.1</dropwizard.version>
         <jersey.multipart.version>1.18.1</jersey.multipart.version> <!-- change with dropwizard version -->
-        <elasticsearch.version>1.6.0</elasticsearch.version>
+        <elasticsearch.version>1.7.0</elasticsearch.version>
         <elastic.shield.version>1.2.1</elastic.shield.version>
         <lucene.version>4.10.4</lucene.version>
         <randomizedtesting-runner.version>2.1.13</randomizedtesting-runner.version>

@@ -141,16 +141,25 @@ public class DefaultIndexManager implements IndexManager, Managed {
     }
 
     @Override
-    public boolean isUpdateRequiredFor(String index, String settingsIdentifier, String mappingsIdentifier) {
-        GetIndexResponse getIndexResponse = esClientManager.obtainIndicesClient().prepareGetIndex().setIndices(index).get();
+    public boolean isUpdateRequiredFor(String index,
+                                       String settingsIdentifier,
+                                       String mappingsIdentifier) {
+        GetIndexResponse getIndexResponse = esClientManager.obtainIndicesClient()
+                .prepareGetIndex().setIndices(index).get();
         String[] indices = getIndexResponse.getIndices();
-        String foundIndex = indices[0]; // TODO jettro: check if this is what we want, what if we have more indexes?
-        // TODO jettro: What if these settings are not available?
-        String shaSettingsFromIndex = getIndexResponse.settings().get(foundIndex).get("index." + IndexCreator.META_SETTINGS_IDENTIFIER);
-        String shaMappingsFromIndex = getIndexResponse.settings().get(foundIndex).get("index." + IndexCreator.META_MAPPINGS_IDENTIFIER);
+        String foundIndex = indices[0];
+        String shaSettingsFromIndex = getIndexResponse.settings()
+                .get(foundIndex)
+                .get("index." + IndexCreator.META_SETTINGS_IDENTIFIER);
+        String shaMappingsFromIndex = getIndexResponse.settings()
+                .get(foundIndex)
+                .get("index." + IndexCreator.META_MAPPINGS_IDENTIFIER);
 
-        return (settingsIdentifier != null && !settingsIdentifier.equals(shaSettingsFromIndex))
-                || (mappingsIdentifier != null && !mappingsIdentifier.equals(shaMappingsFromIndex));
+        return (settingsIdentifier != null &&
+                !settingsIdentifier.equals(shaSettingsFromIndex))
+                ||
+                (mappingsIdentifier != null &&
+                        !mappingsIdentifier.equals(shaMappingsFromIndex));
     }
 
     @Override
