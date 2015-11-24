@@ -49,14 +49,14 @@ Now it is time to start the application. Create the config.yml file and copy the
 start the application using the following command.
 
 ```
-java -jar dropwizard-elastic-0.1-SNAPSHOT.jar server config.yml
+java -jar web-0.2-SNAPSHOT.jar server config.yml
 ```
 
 The output should end with the following two sentences
 
 ```
-INFO  [2015-01-07 12:05:22,224] org.eclipse.jetty.server.ServerConnector: Started application@42039326{HTTP/1.1}{0.0.0.0:8080}
-INFO  [2015-01-07 12:05:22,224] org.eclipse.jetty.server.ServerConnector: Started admin@33308786{HTTP/1.1}{0.0.0.0:8081}
+INFO  [2015-11-24 21:19:53,473] org.eclipse.jetty.server.ServerConnector: Started application@4b14918a{HTTP/1.1}{0.0.0.0:9000}
+INFO  [2015-11-24 21:19:53,474] org.eclipse.jetty.server.ServerConnector: Started admin@6d1ef78d{HTTP/1.1}{0.0.0.0:9001}
 ```
 
 Technology
