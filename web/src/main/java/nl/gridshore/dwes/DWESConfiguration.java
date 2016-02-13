@@ -1,8 +1,10 @@
 package nl.gridshore.dwes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.io.Files;
 import io.dropwizard.Configuration;
 import org.hibernate.validator.constraints.NotEmpty;
+
 
 /**
  * Configuration class for the application.
@@ -14,8 +16,7 @@ public class DWESConfiguration extends Configuration {
     @NotEmpty
     private String clusterName = "elasticsearch";
 
-    @NotEmpty
-    private String tempUploadFolder = ".";
+    private String tempUploadFolder = Files.createTempDir().getAbsolutePath();
 
     private String usernamePassword = "";
 
@@ -39,14 +40,8 @@ public class DWESConfiguration extends Configuration {
         this.clusterName = clusterName;
     }
 
-    @JsonProperty
     public String getTempUploadFolder() {
         return tempUploadFolder;
-    }
-
-    @JsonProperty
-    public void setTempUploadFolder(String tempUploadFolder) {
-        this.tempUploadFolder = tempUploadFolder;
     }
 
     @JsonProperty
