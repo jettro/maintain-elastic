@@ -32,7 +32,6 @@ location of the file upload storage. Below is an example configuration.
 elasticsearchHost: localhost:9300
 clusterName: jc-play
 usernamePassword: jettro:nopiforme
-tempUploadFolder: /Users/yourname/temp/uploads/
 
 server:
   applicationConnectors:
@@ -57,6 +56,54 @@ The output should end with the following two sentences
 ```
 INFO  [2015-11-24 21:19:53,473] org.eclipse.jetty.server.ServerConnector: Started application@4b14918a{HTTP/1.1}{0.0.0.0:9000}
 INFO  [2015-11-24 21:19:53,474] org.eclipse.jetty.server.ServerConnector: Started admin@6d1ef78d{HTTP/1.1}{0.0.0.0:9001}
+```
+
+## Initializing (Creating/copying) a new index
+When initializing a new index, you have the option to provide the settings and the mappings as configuration (json) files.
+
+### settings.json
+The index settings file needs to be named settings.json and should have a structure as shown in the _example_ below:
+```
+{
+  "number_of_shards" :   1,
+  "number_of_replicas" : 0,
+    "index": {
+        "analysis": {
+            "analyzer": {
+                "analyzer_keyword": {
+                    "tokenizer": "keyword",
+                    "filter": "lowercase"
+                }
+            }
+        }
+    }
+}
+
+```
+
+### type-mappings.json
+The index mappings file needs to be named <type>-mappings.json (where type can be any word) and should have a structure as shown in the _example_ below:
+```
+{
+    "financer": {
+        "_id": {
+            "path": "id"
+        },
+        "properties": {
+            "id": {
+                "type": "integer"
+            },
+            "name": {
+                "type": "string",
+                "index": "analyzed",
+                "analyzer": "analyzer_keyword"
+            }
+        }
+    }
+}
+
+
+
 ```
 
 Technology
