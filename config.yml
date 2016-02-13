@@ -1,7 +1,6 @@
 elasticsearchHost: localhost:9300
 clusterName: performance
 usernamePassword: jettro:nopiforme
-tempUploadFolder: /Users/jettrocoenradie/temp/uploads/
 
 server:
   applicationConnectors:
